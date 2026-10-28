@@ -23,7 +23,7 @@ The hypotheses are recorded in [docs/preregistration.md](docs/preregistration.md
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Literature and novelty check (`docs/related_work.md`) | done; framing accepted 2026-10-28 |
-| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | not started |
+| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (source selection, `data/SOURCES.md`) done, awaiting review; 1b and 1c not started |
 | 2 | Benchmark: 200–400 version-sensitive question pairs × en/hi/gu, human-verified, frozen test split | not started |
 | 3 | Config-driven experiment harness, raw logging, scoring, judge-vs-human agreement | not started |
 | 4 | Mitigations: date-stamped prompts, conflict-checker agent, version-filtered retrieval | not started |
