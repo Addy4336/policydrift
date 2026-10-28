@@ -1,0 +1,38 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.vercel/
+
+# LLM response cache and raw experiment logs (summaries are committed elsewhere)
+.cache/
+runs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
