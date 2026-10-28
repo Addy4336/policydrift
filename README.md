@@ -10,7 +10,7 @@ Paper (in progress): *Stale by Default: Measuring and Mitigating Outdated-Rule A
 
 | Phase | Deliverable | Status |
 |---|---|---|
-| 0 | Literature review and novelty check ([docs/related_work.md](docs/related_work.md)), pre-registered hypotheses ([docs/preregistration.md](docs/preregistration.md)) | done, awaiting review |
+| 0 | Literature review and novelty check ([docs/related_work.md](docs/related_work.md)), pre-registered hypotheses ([docs/preregistration.md](docs/preregistration.md)) | done |
 | 1 | Versioned document store built from official sources | – |
 | 2 | PolicyDrift-Bench: version-sensitive questions in en/hi/gu, human-verified | – |
 | 3 | Experiment harness and scoring | – |
