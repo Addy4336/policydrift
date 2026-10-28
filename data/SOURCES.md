@@ -1,8 +1,28 @@
 # Data sources
 
-- **Status:** draft from milestone 1a (2026-10-28), for review. **Nothing has been downloaded yet.** Every page below was read in a browser on 2026-10-28.
-- **Filled in during milestone 1b:** each file's `sha256`, its `retrieved_at` timestamp, and any archive snapshot.
+- **Status:** milestone 1b (2026-10-28). The 36 PIB releases listed below are captured in `data/raw/`. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
+- **Not yet captured:** documents for the *old* version of six schemes, plus the VB-G RAM G backgrounder and the primary instruments (see "Remaining gaps" at the end).
 - **Rule:** official government publications only (CLAUDE.md, hard rule 3).
+
+## How the captures were made (normalisation `pib-text-v1`)
+
+PIB's HTML pages reject scripted clients (HTTP 401/403), so each release was opened in the desktop app's built-in browser. The capture is the `innerText` of the release body, up to and including its "(Release ID: …)" line, so the changing visitor counter and the language links are left out. The text is then normalised:
+
+1. Unicode NFC.
+2. No-break spaces become spaces.
+3. Line endings become LF.
+4. Runs of spaces collapse to one.
+5. Each line is trimmed.
+6. Runs of three or more newlines become one blank line.
+
+A SHA-256 of the result was computed in the browser. The file on disk was checked against that hash, so every file is an exact copy of what the page showed.
+
+Characters are otherwise kept as published:
+- Hindi zero-width joiners stay.
+- Latin ligatures such as "ﬁ" stay.
+- Private-use Wingdings bullets stay.
+
+Ligatures and private-use bullets are removed only in the chunk text (`policydrift.ingest.pib.clean_text`), never in the raw files.
 
 ## How the sources are organised
 
@@ -133,13 +153,21 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 | A Gujarat state scheme (Gujarati-original text) | Open | Not yet found. It would add native Gujarati documents rather than translations. Worth one more search in 1b. |
 | Post-Matric Scholarship (SC/OBC) income ceiling | Rejected | Last changes were in 2017 or earlier (₹2.5 lakh); no recent version. |
 
-## Issues for milestone 1b
+## Known capture issues
 
-1. **PIB blocks scripted fetching.** PIB returns HTTP 403 to non-browser clients, so every page above was read in the desktop app's built-in browser. Spoofing a browser to get past that block would be circumventing bot detection, which I won't do. Options:
-   - **(a)** Capture each page's text through the built-in browser and store it with its URL, retrieval time and sha256. This is my recommendation.
-   - **(b)** You save the pages manually.
-   - **(c)** Prefer PDFs on `static.pib.gov.in` and the gazette, which did download normally.
-2. **Images inside releases.** Some tables are images (FY2024-25 slabs). Detect empty or very short table sections and fall back to another official version.
-3. **Legacy-font PDFs.** Hindi and Gujarati gazette PDFs may use legacy fonts that extract as garbage. Detect it and flag the file rather than ingest it.
-4. **Primary instruments.** Locate the items marked "to locate" above, preferring bilingual gazette copies.
-5. **Reuse terms.** Record the reuse terms for PIB and gazette content in this file before redistributing any text with the benchmark.
+- **Tables published as images.** These are flagged in `notes` in the manifest; the values are missing from the captured text:
+  - FY2024-25 slabs in the English and Gujarati releases (2035605, 2035916). The Hindi release (2035659) has them as text.
+  - The income-level benefit table in 2098406 and 2098461.
+- **Private-use bullets.** In 2069230 (Mudra, Hindi), five list items start with U+F0A7. They are kept in the raw file and dropped from the chunks.
+- **Restated history.** Some current-version releases restate the old rule; for example, Ujjwala v3 recounts the ₹200 and 12-refill history. Retrieval and scoring must not count such a mention as the document asserting the old rule.
+
+## Remaining gaps (before Phase 2)
+
+1. **Old-version documents.** Six schemes have no document from their *old* period yet: rural-employment-guarantee v1, pmay-urban v1, pmjay-senior v1, pm-mudra v1, scss-mis v1 and nmmss v1. Their old values appear only as restatements inside the new releases. The "both versions retrieved" condition needs a real old-version document for each. Candidates:
+   - PIB releases from the old period, captured the same way.
+   - The original scheme rules and guidelines as PDFs.
+2. **PDFs to download** (static hosts that serve plain requests). None downloaded yet; each needs your approval:
+   - VB-G RAM G backgrounder: `static.pib.gov.in/.../2026/may/doc2026511867601.pdf`. It is the source for the 1 Jul 2026 commencement date; its HTML version, at 25.6k characters, is too long to capture through the browser.
+   - Primary instruments still to locate: Finance Acts, the SCSS (Amendment) Scheme 2023 gazette, the VB-G RAM G Act, and the scheme guidelines.
+3. **Legacy-font PDFs.** Hindi and Gujarati gazette PDFs may extract as garbage. Detect this and flag the file rather than ingest it.
+4. **Reuse terms.** Record the reuse terms for PIB and gazette content here before redistributing any text with the benchmark.

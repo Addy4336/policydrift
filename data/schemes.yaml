@@ -1,0 +1,124 @@
+# Version registry: one entry per rule version.
+# effective_to is null for the version currently in force.
+# announced_on is when the change was approved or announced, if that differs from effective_from.
+# Dates marked "to confirm" in notes come from memory or secondary statements and must be checked
+# against a primary instrument before any benchmark item depends on them (see data/SOURCES.md).
+
+income-tax-new-regime:
+  name: Income tax, new regime (individuals)
+  versions:
+    - id: fy2023-24
+      effective_from: 2023-04-01
+      effective_to: 2024-03-31
+      announced_on: 2023-02-01
+    - id: fy2024-25
+      effective_from: 2024-04-01
+      effective_to: 2025-03-31
+      announced_on: 2024-07-23
+    - id: fy2025-26
+      effective_from: 2025-04-01
+      effective_to: null
+      announced_on: 2025-02-01
+      notes: Confirm that Budget 2026-27 left individual slabs unchanged before treating this as current.
+
+pmuy-subsidy:
+  name: PM Ujjwala Yojana targeted LPG subsidy
+  versions:
+    - id: v1
+      effective_from: 2022-05-22
+      effective_to: 2023-10-04
+      notes: Start date stated in PRID 1910516 ("since 22nd May, 2022").
+    - id: v2
+      effective_from: 2023-10-05
+      effective_to: 2025-03-31
+      notes: 5 Oct 2023 per PIB material; confirm against the MoPNG order.
+    - id: v3
+      effective_from: 2025-04-01
+      effective_to: null
+      announced_on: 2025-08-08
+      notes: Approved for FY 2025-26. A June 2026 release mentions 4 refills; held in reserve until a decision document is found.
+
+pm-svanidhi:
+  name: PM SVANidhi street-vendor loans
+  versions:
+    - id: v1
+      effective_from: 2022-04-27
+      effective_to: 2025-08-26
+      notes: Third loan introduced with the extension approved on 27 Apr 2022 (CCEA); operational date to confirm.
+    - id: v2
+      effective_from: 2025-08-27
+      effective_to: null
+      notes: Cabinet approval date; operational date to confirm in the scheme guidelines.
+
+rural-employment-guarantee:
+  name: Rural employment guarantee (MGNREGA, then VB-G RAM G)
+  versions:
+    - id: v1
+      effective_from: 2006-02-02
+      effective_to: 2026-06-30
+      notes: MGNREGA 2005; commencement date to confirm. No v1 document captured yet.
+    - id: v2
+      effective_from: 2026-07-01
+      effective_to: null
+      announced_on: 2025-12-21
+      notes: Commencement per PIB backgrounder PRID 2259691 (not yet captured).
+
+pmay-urban:
+  name: Pradhan Mantri Awas Yojana - Urban
+  versions:
+    - id: v1
+      effective_from: 2015-06-25
+      effective_to: 2024-08-08
+      notes: PMAY-U launch date to confirm. No v1 document captured yet.
+    - id: v2
+      effective_from: 2024-08-09
+      effective_to: null
+      notes: Cabinet approval of PMAY-U 2.0.
+
+pmjay-senior:
+  name: AB PM-JAY coverage of senior citizens
+  versions:
+    - id: v1
+      effective_from: 2018-09-23
+      effective_to: 2024-10-28
+      notes: PM-JAY launch date to confirm. No v1 document captured yet.
+    - id: v2
+      effective_from: 2024-10-29
+      effective_to: null
+      announced_on: 2024-09-11
+
+pm-mudra:
+  name: PM Mudra Yojana loan limit
+  versions:
+    - id: v1
+      effective_from: 2015-04-08
+      effective_to: 2024-10-23
+      notes: No v1 document captured yet; old limit restated in PRID 2069170.
+    - id: v2
+      effective_from: 2024-10-24
+      effective_to: null
+      announced_on: 2024-07-23
+
+scss-mis:
+  name: Senior Citizens' Savings Scheme and Monthly Income Scheme deposit limits
+  versions:
+    - id: v1
+      effective_from: null
+      effective_to: 2023-03-31
+      notes: SCSS 2019 / MIS 2019 rules; start date to confirm. No v1 document captured yet.
+    - id: v2
+      effective_from: 2023-04-01
+      effective_to: null
+
+nmmss:
+  name: National Means-cum-Merit Scholarship income ceiling
+  versions:
+    - id: v1
+      effective_from: null
+      effective_to: 2021-03-31
+      notes: No v1 document captured yet; old ceiling restated in PRID 1800307.
+    - id: v2
+      effective_from: 2021-04-01
+      effective_to: null
+      announced_on: 2022-02-22
+      notes: Approved for 2021-22 to 2025-26; continuation beyond March 2026 to confirm.

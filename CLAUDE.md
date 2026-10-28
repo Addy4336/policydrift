@@ -23,7 +23,7 @@ The hypotheses are recorded in [docs/preregistration.md](docs/preregistration.md
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Literature and novelty check (`docs/related_work.md`) | done; framing accepted 2026-10-28 |
-| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (source selection, `data/SOURCES.md`) done, awaiting review; 1b and 1c not started |
+| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (sources) and 1b (capture, ingest, chunks) done; 1b awaiting review; old-version documents still missing for 6 schemes; 1c (retrieval) not started |
 | 2 | Benchmark: 200–400 version-sensitive question pairs × en/hi/gu, human-verified, frozen test split | not started |
 | 3 | Config-driven experiment harness, raw logging, scoring, judge-vs-human agreement | not started |
 | 4 | Mitigations: date-stamped prompts, conflict-checker agent, version-filtered retrieval | not started |
@@ -38,8 +38,9 @@ Directories are created only when their phase starts.
 policydrift/
 ├── docs/                 # related_work.md, preregistration.md, references.bib
 ├── data/
-│   ├── SOURCES.md        # every official source: URL, version, effective dates, sha256, archive snapshot
-│   ├── raw/<scheme>/<version>/   # original PDFs/HTML + manifest.json
+│   ├── SOURCES.md        # every official source: URL, version, effective dates, capture method
+│   ├── schemes.yaml      # version registry: effective_from / effective_to per rule version
+│   ├── raw/<scheme>/<version>/pib-<PRID>-<lang>.txt   # captured releases; raw/manifest.jsonl holds hashes
 │   ├── processed/chunks.jsonl    # each chunk: scheme, version, effective_from, effective_to, source_url, language
 │   └── benchmark/{drafts,verification,dev,test}/   # test = frozen + checksummed
 ├── supabase/migrations/  # Postgres + pgvector schema
@@ -70,11 +71,12 @@ Commands use the `policydrift` CLI (Typer) through `uv run`, so they work the sa
 
 | Command | Purpose | Available from |
 |---|---|---|
-| `uv sync` | Install pinned dependencies from `uv.lock` | Phase 1 |
-| `uv run pytest` | Run tests | Phase 1 |
-| `uv run ruff check . && uv run ruff format --check .` | Lint and format check | Phase 1 |
-| `uv run mypy src` | Type check | Phase 1 |
-| `uv run policydrift ingest ...` | Build the versioned document store | Phase 1 |
+| `uv sync` | Install pinned dependencies from `uv.lock` | available |
+| `uv run pytest` | Run tests | available |
+| `uv run ruff check . && uv run ruff format --check .` | Lint and format check | available |
+| `uv run mypy src` | Type check | available |
+| `uv run policydrift ingest verify` | Check every captured source against its manifest hash, and the version registry | available |
+| `uv run policydrift ingest chunk` | Rebuild `data/processed/chunks.jsonl` (commit the result; a test fails if it is stale) | available |
 | `uv run policydrift bench ...` | Generate drafts, export/import verification CSVs, freeze splits | Phase 2 |
 | `uv run policydrift run configs/experiments/<name>.yaml` | Run one experiment | Phase 3 |
 | `uv run policydrift paper` | Regenerate every figure and table in `paper/` | Phase 5 |

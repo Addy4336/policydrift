@@ -11,7 +11,7 @@ Paper (in progress): *Stale by Default: Measuring and Mitigating Outdated-Rule A
 | Phase | Deliverable | Status |
 |---|---|---|
 | 0 | Literature review and novelty check ([docs/related_work.md](docs/related_work.md)), pre-registered hypotheses ([docs/preregistration.md](docs/preregistration.md)) | done |
-| 1 | Versioned document store built from official sources | – |
+| 1 | Versioned document store built from official sources | in progress: 36 official releases captured and chunked |
 | 2 | PolicyDrift-Bench: version-sensitive questions in en/hi/gu, human-verified | – |
 | 3 | Experiment harness and scoring | – |
 | 4 | Mitigations: date-stamped prompts, conflict-checker agent, version-filtered retrieval | – |
@@ -20,4 +20,13 @@ Paper (in progress): *Stale by Default: Measuring and Mitigating Outdated-Rule A
 
 ## Reproducing the results
 
-Setup and one-command reproduction of every number in the paper will be documented here as Phases 1–5 land.
+You need Python 3.12 and [uv](https://docs.astral.sh/uv/).
+
+```bash
+uv sync                              # install pinned dependencies
+uv run policydrift ingest verify     # check every captured source against its SHA-256
+uv run policydrift ingest chunk      # rebuild data/processed/chunks.jsonl
+uv run pytest                        # tests, including "the committed chunks are up to date"
+```
+
+How the official sources were captured is documented in [data/SOURCES.md](data/SOURCES.md). One-command reproduction of every number in the paper will be added as Phases 2–5 land.
