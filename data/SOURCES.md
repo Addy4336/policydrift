@@ -1,7 +1,7 @@
 # Data sources
 
-- **Status:** milestone 1b (2026-10-28). The 36 PIB releases listed below are captured in `data/raw/`. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
-- **Not yet captured:** documents for the *old* version of six schemes, plus the VB-G RAM G backgrounder and the primary instruments (see "Remaining gaps" at the end).
+- **Status:** milestone 1b (2026-10-28). The 46 PIB releases listed below are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
+- **Not yet captured:** the VB-G RAM G backgrounder and the primary instruments (see "Remaining gaps" at the end).
 - **Rule:** official government publications only (CLAUDE.md, hard rule 3).
 
 ## How the captures were made (normalisation `pib-text-v1`)
@@ -23,6 +23,8 @@ Characters are otherwise kept as published:
 - Private-use Wingdings bullets stay.
 
 Ligatures and private-use bullets are removed only in the chunk text (`policydrift.ingest.pib.clean_text`), never in the raw files.
+
+**Legacy pages.** Two releases (from 2004 and 2015) exist only in PIB's older layout at `https://www.pib.gov.in/newsite/erelcontent.aspx?relid=<id>`. Their capture is the `innerText` of `#form1` up to the "(Release ID :…)" line, normalised the same way. In the manifest they have `release_id_kind: "relid"`, and their files are named `pib-r<relid>-<lang>.txt`. The header is laid out differently ("18-September, 2004 16:34 IST" instead of "Posted On: …"), and `parse_pib` handles both layouts.
 
 ## How the sources are organised
 
@@ -95,7 +97,7 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 
 | Version | effective_from | Facts | Source |
 |---|---|---|---|
-| V1 | 2006-02-02 (MGNREGA 2005 in force; to confirm) | At least 100 days of wage employment per rural household per financial year | MGNREGA 2005, s. 3(1): Act text (nrega.nic.in / India Code, en + hi), to locate |
+| V1 | 2006-02-02 (MGNREGA 2005 in force; to confirm) | At least 100 days of wage employment per rural household per financial year | MoRD, Lok Sabha reply, 3 Dec 2024: 2080090 / 2081833 / –. Primary instrument: MGNREGA 2005, s. 3(1), to locate. |
 | V2 | 2026-07-01 | At least **125** days per rural household per financial year (s. 5(1)). MGNREGA repealed the same day. States may notify a pause period of up to 60 days. | Assent release, 21 Dec 2025: 2207187 / 2207188 / 2207195. PIB backgrounder, 11 May 2026: 2259691 / 2259720 / 2259765 (states the 1 Jul 2026 commencement). |
 
 - **Primary instrument:** VB-G RAM G Act 2025 and its commencement notification (Gazette of India), to locate.
@@ -105,7 +107,7 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 
 | Version | effective_from | Facts | Source |
 |---|---|---|---|
-| V1 | 2015-06-25 (PMAY-U launch, to confirm; CLSS-MIG added later) | EWS up to ₹3L; LIG ₹3–6L; MIG-I ₹6–12L; MIG-II ₹12–18L (CLSS) | PMAY-U guidelines / FAQ (pmay-urban.gov.in), to open and confirm |
+| V1 | 2015-06-25 (PMAY-U launch, to confirm; CLSS-MIG added later) | EWS up to ₹3L; LIG ₹3–6L; MIG-I ₹6–12L; MIG-II ₹12–18L (CLSS) | MoHUA, 12 Jun 2018: 1535218 / – / – (states the MIG-I and MIG-II bands as text). The EWS/LIG bands of v1 are not stated in a captured v1 document. |
 | V2 | 2024-08-09 (Cabinet approval) | EWS up to ₹3L; LIG ₹3–6L; **MIG ₹6–9L**. Government assistance ₹2.5 lakh per unit (AHP/BLC). | Cabinet, 9 Aug 2024: 2043924 / 2043974 / 2043931 |
 
 - **Caveats:**
@@ -117,28 +119,28 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 
 | Version | effective_from | Facts | Source |
 |---|---|---|---|
-| V1 | 2018-09-23 (PM-JAY launch, to confirm) | Eligibility by deprivation and occupational criteria (SECC), with no age-based entitlement; ₹5 lakh per family per year | Pre-2024 eligibility document, to locate |
+| V1 | 2018-09-23 (PM-JAY launch, to confirm) | Eligibility by deprivation and occupational criteria (SECC), with no age-based entitlement; ₹5 lakh per family per year | MoHFW, Lok Sabha reply, 26 Jul 2024: 2037638 / 2037670 / – ("all members of the eligible families irrespective of age are covered"; "no proposal to open the scheme beyond the existing beneficiary base") |
 | V2 | 2024-10-29 (launch; Cabinet approval 11 Sep 2024) | Everyone aged **70+** is eligible regardless of income. ₹5 lakh per year on a family basis, plus a top-up of up to ₹5 lakh for seniors in families already covered. | Cabinet, 11 Sep 2024: 2053883 / 2053919 / – |
 
 ### 7. PM Mudra Yojana: loan limit
 
 | Version | effective_from | Facts | Source |
 |---|---|---|---|
-| V1 | 2015-04-08 | Loans up to ₹10 lakh (Shishu / Kishore / Tarun) | Restated in the V2 release; find an original-period document in 1b |
+| V1 | 2015-04-08 | Loans up to ₹10 lakh (Shishu / Kishore / Tarun) | MoF, 8th-anniversary release, 8 Apr 2023: 1914739 / 1914743 / 1914769 |
 | V2 | 2024-10-24 | Up to **₹20 lakh**; new **Tarun Plus** category (₹10–20 lakh) for borrowers who have repaid a Tarun loan | MoF, 29 Oct 2024: 2069170 / 2069230 / – |
 
 ### 8. Senior Citizens' Savings Scheme and Monthly Income Scheme: deposit limits
 
 | Version | effective_from | Facts | Source |
 |---|---|---|---|
-| V1 | 2019 (SCSS 2019 / MIS 2019) | SCSS max ₹15 lakh. MIS max ₹4.5 lakh (single), ₹9 lakh (joint). | SCSS 2019 and MIS 2019 scheme rules (nsiindia.gov.in / Gazette), to locate |
+| V1 | 2004-08-02 (SCSS notified) | SCSS max ₹15 lakh. MIS max ₹4.5 lakh (single), ₹9 lakh (joint). | MoF, 18 Sep 2004 (legacy relid 3906, en only): states the ₹15 lakh SCSS limit. The old MIS limits are not stated in any captured v1 document; they appear only as "raised from" in the v2 release. |
 | V2 | 2023-04-01 | SCSS max **₹30 lakh**. MIS max **₹9 lakh** (single), **₹15 lakh** (joint). | MoC/PIB, 1 Apr 2023: 1912742 / 1912834 / –. Gazette: SCSS (Amendment) Scheme 2023, G.S.R. 240(E) dated 31 Mar 2023 (citation from the NSI scheme text; to confirm). |
 
 ### 9. National Means-cum-Merit Scholarship (NMMSS): income ceiling
 
 | Version | effective_from | Facts | Source |
 |---|---|---|---|
-| V1 | before 2021-22 | Parental income ceiling ₹1.5 lakh per year; ₹12,000 per year scholarship | Restated in the V2 release |
+| V1 | before 2021-22 | Parental income ceiling ₹1.5 lakh per year | MHRD, Lok Sabha reply, 4 Mar 2015 (legacy relid 116460, en only) |
 | V2 | 2021-22 (approved 22 Feb 2022, for 2021-22 to 2025-26) | Parental income ceiling **₹3.5 lakh** per year; ₹12,000 per year unchanged | MoE, 22 Feb 2022: 1800307 / 1800361 / – |
 
 - **Open question:** the release's text extraction was fragmentary. Confirm the exact ceilings from the full text in 1b.
@@ -163,9 +165,12 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 
 ## Remaining gaps (before Phase 2)
 
-1. **Old-version documents.** Six schemes have no document from their *old* period yet: rural-employment-guarantee v1, pmay-urban v1, pmjay-senior v1, pm-mudra v1, scss-mis v1 and nmmss v1. Their old values appear only as restatements inside the new releases. The "both versions retrieved" condition needs a real old-version document for each. Candidates:
-   - PIB releases from the old period, captured the same way.
-   - The original scheme rules and guidelines as PDFs.
+1. **Old-version documents in Hindi and Gujarati.** Every old version now has a document from its own period, so the "both versions retrieved" condition can run in English for all nine schemes. Coverage in the other languages is thinner:
+   - **All three languages:** pmuy-subsidy, income-tax, pm-mudra.
+   - **English and Hindi only:** rural-employment-guarantee, pmjay-senior.
+   - **English only:** pm-svanidhi, pmay-urban, scss-mis and nmmss. These releases link to no Hindi or Gujarati versions.
+
+   For the missing languages, the both-versions condition falls back to the cross-lingual setup (X), pairing an English old-version document with a Hindi or Gujarati question. This must be recorded per item in Phase 2. Two old-version facts have no own-period document at all: the MIS deposit limits, and the PMAY-U EWS/LIG bands (which did not change).
 2. **PDFs to download** (static hosts that serve plain requests). None downloaded yet; each needs your approval:
    - VB-G RAM G backgrounder: `static.pib.gov.in/.../2026/may/doc2026511867601.pdf`. It is the source for the 1 Jul 2026 commencement date; its HTML version, at 25.6k characters, is too long to capture through the browser.
    - Primary instruments still to locate: Finance Acts, the SCSS (Amendment) Scheme 2023 gazette, the VB-G RAM G Act, and the scheme guidelines.

@@ -50,9 +50,21 @@ HI = """वित्त मंत्रालय
 """
 
 
+LEGACY = """Ministry of Finance
+18-September, 2004 16:34 IST
+Government extends SCSS through Banks
+
+Deposits subject to a maximum of Rs.15 lakh will be allowed.
+
+The details may be accessed at <finmin.nic.in>.
+
+(Release ID :3906)
+"""
+
+
 def test_english_header_and_body() -> None:
     r = parse_pib(EN)
-    assert (r.ministry, r.title, r.prid) == ("Ministry of Finance", "Some Title", "2098406")
+    assert (r.ministry, r.title, r.release_id) == ("Ministry of Finance", "Some Title", "2098406")
     assert r.posted_on == date(2025, 2, 1)
     assert r.posted_by == "PIB Delhi"
     assert EN[r.body_start : r.body_end] == "First paragraph.\n\nSecond paragraph."
@@ -61,7 +73,7 @@ def test_english_header_and_body() -> None:
 def test_gujarati_signoff_and_social_footer_are_excluded() -> None:
     r = parse_pib(GU)
     assert r.posted_on == date(2024, 7, 23)
-    assert r.prid == "2035916"
+    assert r.release_id == "2035916"
     assert GU[r.body_start : r.body_end] == "પહેલો ફકરો."
 
 
@@ -69,6 +81,21 @@ def test_hindi_boilerplate_and_initials_are_excluded() -> None:
     r = parse_pib(HI)
     assert r.posted_on == date(2024, 10, 29)
     assert HI[r.body_start : r.body_end] == "यह नई सीमा 24 अक्टूबर, 2024 को प्रभावी हुई।"
+
+
+def test_legacy_page_header_and_body() -> None:
+    r = parse_pib(LEGACY)
+    assert (r.ministry, r.title, r.release_id) == (
+        "Ministry of Finance",
+        "Government extends SCSS through Banks",
+        "3906",
+    )
+    assert r.posted_on == date(2004, 9, 18)
+    assert r.posted_by is None
+    assert LEGACY[r.body_start : r.body_end] == (
+        "Deposits subject to a maximum of Rs.15 lakh will be allowed.\n\n"
+        "The details may be accessed at <finmin.nic.in>."
+    )
 
 
 def test_missing_release_id_is_an_error() -> None:

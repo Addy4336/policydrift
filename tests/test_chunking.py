@@ -5,6 +5,7 @@ import pytest
 
 from policydrift.ingest.build import build_chunks
 from policydrift.ingest.chunking import chunk_spans, paragraph_spans
+from policydrift.ingest.registry import load_registry
 
 
 def _texts(text: str, spans: list[tuple[int, int]]) -> list[str]:
@@ -73,12 +74,35 @@ def test_committed_chunks_file_is_up_to_date(root: Path) -> None:
     assert committed == rebuilt, "run `uv run policydrift ingest chunk` and commit the result"
 
 
+def test_every_registered_version_has_a_source_document(root: Path) -> None:
+    registry = load_registry(root / "data" / "schemes.yaml")
+    expected = {(s, v.id) for s, scheme in registry.items() for v in scheme.versions}
+    covered = {(c.scheme, c.version) for c in build_chunks(root)}
+    assert expected - covered == set()
+
+
+def test_superseded_versions_are_documented_from_before_the_change(root: Path) -> None:
+    # A document filed under an old version must have been published while that version
+    # was still in force (or before), not restated afterwards.
+    for c in build_chunks(root):
+        if c.effective_to is not None:
+            assert c.posted_on <= c.effective_to, c.chunk_id
+
+
 def test_facts_that_changed_are_present_in_the_right_versions(root: Path) -> None:
     by_version: dict[tuple[str, str, str], str] = {}
     for c in build_chunks(root):
         key = (c.scheme, c.version, c.language)
         by_version[key] = by_version.get(key, "") + "\n" + c.text
+    # Current versions.
     assert "up to 9 refills" in by_version[("pmuy-subsidy", "v3", "en")]
     assert "125 days" in by_version[("rural-employment-guarantee", "v2", "en")]
     assert "₹6 lakh up to ₹9 lakh" in by_version[("pmay-urban", "v2", "en")]
     assert "3-7 लाख रुपए" in by_version[("income-tax-new-regime", "fy2024-25", "hi")]
+    # Superseded versions, stated as the rule in force at the time.
+    assert "at least one hundred days" in by_version[("rural-employment-guarantee", "v1", "en")]
+    assert "From 12,00,001 up to 18,00,000" in by_version[("pmay-urban", "v1", "en")]
+    assert "irrespective of age" in by_version[("pmjay-senior", "v1", "en")]
+    assert "up to ₹10 lakh" in by_version[("pm-mudra", "v1", "en")]
+    assert "maximum of Rs.15 lakh" in by_version[("scss-mis", "v1", "en")]
+    assert "not more than Rs. 1,50,000/- per annum" in by_version[("nmmss", "v1", "en")]

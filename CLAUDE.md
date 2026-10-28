@@ -23,7 +23,7 @@ The hypotheses are recorded in [docs/preregistration.md](docs/preregistration.md
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Literature and novelty check (`docs/related_work.md`) | done; framing accepted 2026-10-28 |
-| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (sources) and 1b (capture, ingest, chunks) done; 1b awaiting review; old-version documents still missing for 6 schemes; 1c (retrieval) not started |
+| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (sources) and 1b (46 captures incl. old versions, ingest, chunks) done, awaiting review; 1c (retrieval) not started |
 | 2 | Benchmark: 200–400 version-sensitive question pairs × en/hi/gu, human-verified, frozen test split | not started |
 | 3 | Config-driven experiment harness, raw logging, scoring, judge-vs-human agreement | not started |
 | 4 | Mitigations: date-stamped prompts, conflict-checker agent, version-filtered retrieval | not started |
@@ -40,7 +40,7 @@ policydrift/
 ├── data/
 │   ├── SOURCES.md        # every official source: URL, version, effective dates, capture method
 │   ├── schemes.yaml      # version registry: effective_from / effective_to per rule version
-│   ├── raw/<scheme>/<version>/pib-<PRID>-<lang>.txt   # captured releases; raw/manifest.jsonl holds hashes
+│   ├── raw/<scheme>/<version>/pib-<PRID|r<relid>>-<lang>.txt   # captured releases; raw/manifest.jsonl holds hashes
 │   ├── processed/chunks.jsonl    # each chunk: scheme, version, effective_from, effective_to, source_url, language
 │   └── benchmark/{drafts,verification,dev,test}/   # test = frozen + checksummed
 ├── supabase/migrations/  # Postgres + pgvector schema

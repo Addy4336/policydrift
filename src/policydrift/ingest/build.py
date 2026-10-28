@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from datetime import date
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -29,10 +30,12 @@ class Chunk(BaseModel):
     source_url: str
     source_path: str
     source_sha256: str
-    source_prid: str
+    source_release_id: str
+    source_release_id_kind: Literal["prid", "relid"]
     ministry: str
     title: str
     posted_on: date
+    posted_by: str | None
     chunk_index: int
     raw_start: int  # [raw_start, raw_end) offsets into the captured source file
     raw_end: int
@@ -58,16 +61,19 @@ def build_chunks(root: Path, max_chars: int = DEFAULT_MAX_CHARS) -> Iterator[Chu
     if problems:
         raise IngestError("\n".join(problems))
 
-    for source in sorted(sources, key=lambda s: (s.scheme, s.version, s.language, s.prid)):
+    for source in sorted(sources, key=lambda s: (s.scheme, s.version, s.language, s.release_tag)):
         version = registry[source.scheme].version(source.version)
         raw = (raw_dir / source.path).read_text(encoding="utf-8")
         release = parse_pib(raw)
-        if release.prid != source.prid:
-            raise IngestError(f"{source.path}: Release ID {release.prid} != manifest {source.prid}")
+        if release.release_id != source.release_id:
+            raise IngestError(
+                f"{source.path}: Release ID {release.release_id} != manifest {source.release_id}"
+            )
         spans = chunk_spans(raw, release.body_start, release.body_end, max_chars)
+        prefix = f"{source.scheme}:{source.version}:{source.language}:{source.release_tag}"
         for index, (start, end) in enumerate(spans):
             yield Chunk(
-                chunk_id=f"{source.scheme}:{source.version}:{source.language}:{source.prid}:{index:03d}",
+                chunk_id=f"{prefix}:{index:03d}",
                 scheme=source.scheme,
                 version=source.version,
                 effective_from=version.effective_from,
@@ -77,10 +83,12 @@ def build_chunks(root: Path, max_chars: int = DEFAULT_MAX_CHARS) -> Iterator[Chu
                 source_url=source.url,
                 source_path=source.path,
                 source_sha256=source.sha256,
-                source_prid=source.prid,
+                source_release_id=source.release_id,
+                source_release_id_kind=source.release_id_kind,
                 ministry=release.ministry,
                 title=release.title,
                 posted_on=release.posted_on,
+                posted_by=release.posted_by,
                 chunk_index=index,
                 raw_start=start,
                 raw_end=end,

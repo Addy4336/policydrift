@@ -1,4 +1,12 @@
-"""Parse captured PIB release text (normalisation ``pib-text-v1``) into header and body."""
+"""Parse captured PIB release text (normalisation ``pib-text-v1``) into header and body.
+
+Two page layouts are supported:
+
+- current pages: ministry, title, optional subheadings, then a "Posted On: ..." line;
+- legacy ``erelcontent`` pages: ministry, then a "18-September, 2004 16:34 IST" line, then title.
+
+Both end with a "(Release ID: ...)" line.
+"""
 
 from __future__ import annotations
 
@@ -12,7 +20,9 @@ _POSTED = re.compile(
     r"^(?:Posted On|प्रविष्टि तिथि|પોસ્ટેડ ઓન):\s*"
     r"(?P<date>\d{2} [A-Z]{3} \d{4})\s+(?P<time>\d{1,2}:\d{2}[AP]M)\s+by\s+(?P<by>.+)$"
 )
-_RELEASE_ID = re.compile(r"^\((?:Release ID|रिलीज़ आईडी|રીલીઝ આઈડી):\s*(?P<prid>\d+)\)$")
+# Legacy pages: "18-September, 2004 16:34 IST".
+_LEGACY_DATE = re.compile(r"^(?P<date>\d{2}-[A-Za-z]+,? \d{4}) (?P<time>\d{2}:\d{2}) IST$")
+_RELEASE_ID = re.compile(r"^\((?:Release ID|रिलीज़ आईडी|રીલીઝ આઈડી)\s*:\s*(?P<id>\d+)\)$")
 
 # Trailing sign-off lines that are not part of the release content.
 _STARS = re.compile(r"^\*+$")
@@ -33,8 +43,8 @@ class PibRelease:
     ministry: str
     title: str
     posted_on: date
-    posted_by: str
-    prid: str
+    posted_by: str | None  # e.g. "PIB Delhi"; not shown on legacy pages
+    release_id: str
     body_start: int  # character offsets of the body within the captured text
     body_end: int
 
@@ -44,11 +54,23 @@ def parse_pib(text: str) -> PibRelease:
     lines = text.split("\n")
     offsets = _line_offsets(lines)
 
-    posted_idx = next((i for i, line in enumerate(lines) if _POSTED.match(line)), None)
-    if posted_idx is None:
-        raise ValueError("no 'Posted On' line found")
-    posted = _POSTED.match(lines[posted_idx])
-    assert posted is not None
+    legacy = _LEGACY_DATE.match(lines[1]) if len(lines) > 2 else None
+    posted_by: str | None
+    if legacy:
+        title = lines[2]
+        header_end = 2
+        posted_on = datetime.strptime(legacy["date"].replace(",", ""), "%d-%B %Y").date()
+        posted_by = None
+    else:
+        header_end_or_none = next((i for i, line in enumerate(lines) if _POSTED.match(line)), None)
+        if header_end_or_none is None:
+            raise ValueError("no 'Posted On' line found")
+        header_end = header_end_or_none
+        posted = _POSTED.match(lines[header_end])
+        assert posted is not None
+        title = lines[1]
+        posted_on = datetime.strptime(posted["date"].title(), "%d %b %Y").date()
+        posted_by = posted["by"]
 
     last = _last_nonblank(lines, len(lines))
     release = _RELEASE_ID.match(lines[last]) if last is not None else None
@@ -58,20 +80,20 @@ def parse_pib(text: str) -> PibRelease:
     end = last
     while True:
         prev = _last_nonblank(lines, end)
-        if prev is None or prev <= posted_idx or not _is_signoff(lines[prev]):
+        if prev is None or prev <= header_end or not _is_signoff(lines[prev]):
             break
         end = prev
     body_last = _last_nonblank(lines, end)
-    body_first = next((i for i in range(posted_idx + 1, len(lines)) if lines[i].strip()), None)
+    body_first = next((i for i in range(header_end + 1, len(lines)) if lines[i].strip()), None)
     if body_first is None or body_last is None or body_last < body_first:
         raise ValueError("empty release body")
 
     return PibRelease(
         ministry=lines[0],
-        title=lines[1],
-        posted_on=datetime.strptime(posted["date"].title(), "%d %b %Y").date(),
-        posted_by=posted["by"],
-        prid=release["prid"],
+        title=title,
+        posted_on=posted_on,
+        posted_by=posted_by,
+        release_id=release["id"],
         body_start=offsets[body_first],
         body_end=offsets[body_last] + len(lines[body_last]),
     )

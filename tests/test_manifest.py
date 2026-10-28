@@ -7,14 +7,17 @@ from policydrift.ingest.manifest import load_manifest, sha256_file, verify_sourc
 def test_every_captured_source_matches_its_hash(root: Path) -> None:
     raw_dir = root / "data" / "raw"
     sources = load_manifest(raw_dir / "manifest.jsonl")
-    assert len(sources) >= 36
+    assert len(sources) >= 46
     assert verify_sources(sources, raw_dir) == []
 
 
-def test_manifest_paths_encode_scheme_version_language_and_prid(root: Path) -> None:
+def test_manifest_paths_encode_scheme_version_language_and_release_id(root: Path) -> None:
     for s in load_manifest(root / "data" / "raw" / "manifest.jsonl"):
-        assert s.path == f"{s.scheme}/{s.version}/pib-{s.prid}-{s.language}.txt"
-        assert s.url.endswith(f"PRID={s.prid}")
+        assert s.path == f"{s.scheme}/{s.version}/pib-{s.release_tag}-{s.language}.txt"
+        if s.release_id_kind == "prid":
+            assert s.url == f"https://www.pib.gov.in/PressReleasePage.aspx?PRID={s.release_id}"
+        else:
+            assert s.url == f"https://www.pib.gov.in/newsite/erelcontent.aspx?relid={s.release_id}"
 
 
 def test_tampered_or_missing_file_is_reported(root: Path, tmp_path: Path) -> None:

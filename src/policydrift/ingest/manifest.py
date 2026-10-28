@@ -22,7 +22,10 @@ class RawSource(BaseModel):
     language: Language
     source_type: Literal["pib_release"]
     publisher: str
-    prid: str
+    release_id: str
+    # "prid" for current PIB pages (PressReleasePage.aspx?PRID=...),
+    # "relid" for legacy pages (newsite/erelcontent.aspx?relid=...).
+    release_id_kind: Literal["prid", "relid"]
     url: str
     retrieved_at: AwareDatetime
     capture_method: str
@@ -30,6 +33,11 @@ class RawSource(BaseModel):
     sha256: str
     chars: int
     notes: str | None = None
+
+    @property
+    def release_tag(self) -> str:
+        """Release ID as used in file names and chunk IDs ("r" prefix for legacy IDs)."""
+        return ("r" if self.release_id_kind == "relid" else "") + self.release_id
 
 
 def load_manifest(path: Path) -> list[RawSource]:
