@@ -46,6 +46,7 @@ def apply_migrations(conn: psycopg.Connection, migrations_dir: Path) -> list[str
         if sql_file.name in done:
             continue
         with conn.transaction(), conn.cursor() as cur:
-            cur.execute(sql_file.read_text(encoding="utf-8"))            cur.execute("insert into public.schema_migrations (name) values (%s)", (sql_file.name,))
+            cur.execute(sql_file.read_text(encoding="utf-8"))
+            cur.execute("insert into public.schema_migrations (name) values (%s)", (sql_file.name,))
         applied.append(sql_file.name)
     return applied
