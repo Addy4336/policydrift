@@ -13,6 +13,11 @@ _DIGITS = {
 }
 _LAKH = {"en": ("lakh", "lakhs", "Lakh", "Lakhs"), "hi": ("लाख",), "gu": ("લાખ",)}
 _CRORE = {"en": ("crore", "Crore"), "hi": ("करोड़", "करोड"), "gu": ("કરોડ",)}
+_PERCENT = {
+    "en": ("%", " %", " per cent", " percent", " per-cent"),
+    "hi": ("%", " %", " प्रतिशत", " फीसदी"),
+    "gu": ("%", " %", " ટકા"),
+}
 _CURRENCY = {
     "en": ("₹", "₹ ", "Rs.", "Rs. ", "Rs ", "INR "),
     "hi": ("₹", "₹ ", "रु.", "रुपये "),
@@ -70,3 +75,11 @@ def count_forms(value: int, lang: str = "en") -> list[str]:
     """A plain count (refills, days, years) in ASCII and native digits."""
     forms = {str(value), to_script(str(value), lang)}
     return sorted(forms)
+
+
+def percent_forms(value: float, lang: str = "en") -> list[str]:
+    """A percentage as written in running text; 12.5 and 20 both work, bare number included."""
+    number = _trim(float(value), 2)
+    forms = {number} | {number + suffix for suffix in _PERCENT[lang]}
+    native = {to_script(f, lang) for f in forms} if lang != "en" else set()
+    return sorted(forms | native)

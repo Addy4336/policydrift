@@ -13,11 +13,11 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, ConfigDict
 
-from policydrift.bench.forms import amount_forms, count_forms
+from policydrift.bench.forms import amount_forms, count_forms, percent_forms
 from policydrift.ingest.build import Chunk
 from policydrift.ingest.registry import Registry
 
-Kind = Literal["inr", "count", "days", "years"]
+Kind = Literal["inr", "count", "days", "years", "months", "percent"]
 
 
 class Evidence(BaseModel):
@@ -31,7 +31,7 @@ class FactValue(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     version: str
-    value: int
+    value: int | float  # float only for kind=percent (e.g. 12.5)
     evidence: list[Evidence]
     # "contemporary": the cited document belongs to this version's own period.
     # "restated": the value is only known from a later document ("raised from X to Y").
@@ -57,8 +57,12 @@ def load_facts(path: Path) -> list[Fact]:
         return [Fact.model_validate(item) for item in yaml.safe_load(f)]
 
 
-def value_forms(kind: Kind, value: int, lang: str = "en") -> list[str]:
-    return amount_forms(value, lang) if kind == "inr" else count_forms(value, lang)
+def value_forms(kind: Kind, value: float, lang: str = "en") -> list[str]:
+    if kind == "percent":
+        return percent_forms(value, lang)
+    if kind == "inr":
+        return amount_forms(int(value), lang)
+    return count_forms(int(value), lang)
 
 
 def validate_facts(facts: Sequence[Fact], chunks: Sequence[Chunk], registry: Registry) -> list[str]:

@@ -1,6 +1,6 @@
 # Data sources
 
-- **Status:** milestone 1b (2026-10-28). The 46 PIB releases listed below are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
+- **Status:** milestone 1b (2026-10-28). The 60 PIB releases listed below (46 in the first nine schemes, 14 in the three added on 2026-10-31) are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
 - **Not yet captured:** the VB-G RAM G backgrounder and the primary instruments (see "Remaining gaps" at the end).
 - **Rule:** official government publications only (CLAUDE.md, hard rule 3).
 
@@ -144,6 +144,35 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 | V2 | 2021-22 (approved 22 Feb 2022, for 2021-22 to 2025-26) | Parental income ceiling **₹3.5 lakh** per year; ₹12,000 per year unchanged | MoE, 22 Feb 2022: 1800307 / 1800361 / – |
 
 - **Open question:** the release's text extraction was fragmentary. Confirm the exact ceilings from the full text in 1b.
+
+### 10. GST: rate structure
+
+| Version | effective_from | Facts | Source |
+|---|---|---|---|
+| V1 | 2017-07-01 | Four slabs: 5, 12, 18, 28 percent | Roll-out release, 30 Jun 2017: legacy relid 167023 (en only) |
+| V2 | 2025-09-22 (56th Council, 3 Sep 2025) | Two main rates, 5 and 18 percent, plus 40 percent for sin/luxury goods. Annexure I lists old and new rates for processed foods | Food-processing release, 8 Sep 2025: 2164586 / 2164646 / 2164687 |
+
+- The 2017 release gives no item rates, so every old item rate in the fact table is restated from the annexure's "From" column.
+- The slab count is not a benchmark fact: with a 40 percent rate and Nil items "how many slabs" is ambiguous.
+- The full 56th Council release (about 149k characters) was deliberately not captured.
+
+### 11. Capital gains tax
+
+| Version | effective_from | Facts | Source |
+|---|---|---|---|
+| V1 | 2018-04-01 | Section 112A: 10 percent above ₹1 lakh. Old rates restated in v2 documents | Finance Bill 2018 FAQ, 4 Feb 2018: 1519095 (en only; proposal stage) |
+| V2 | 2024-07-23 | STCG (111A) 20 percent; LTCG (112A) 12.5 percent, exemption ₹1.25 lakh; other LTCG 12.5 percent without indexation; holding periods 12/24 months | Budget summary 23 Jul 2024: 2035596 / 2035645 / 2035646; CBDT FAQ 24 Jul 2024: 2036604 / 2036706 (en, hi) |
+
+### 12. Kisan Credit Card and Modified Interest Subvention Scheme
+
+| Version | effective_from | Facts | Source |
+|---|---|---|---|
+| V1 | not established; in force on 28 May 2025 | Short-term loan limit ₹3 lakh; animal husbandry/fisheries ₹2 lakh | Cabinet release, 28 May 2025: 2131988 / 2132001 / 2132000 |
+| V2 | **unknown** (placeholder 2025-05-29) | Limit ₹5 lakh; fisheries/allied ₹5 lakh; collateral-free ₹2 lakh (from ₹1.6 lakh, stated effective 1 Jan 2025) | PIB Backgrounder, 11 Mar 2026: 2238004 (en only) |
+
+- **Open question:** the v1/v2 boundary is a placeholder. Find the primary instrument (RBI/DA&FW circular) before any as-of item uses dates between 28 May 2025 and 11 Mar 2026.
+- The Hindi (2238178) and Gujarati (2238058) versions of the backgrounder are not captured.
+- Retrieval times for these 14 captures are recorded as midnight UTC of the capture date; the time of day was not kept.
 
 ## Reserve and rejected candidates
 

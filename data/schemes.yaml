@@ -129,3 +129,44 @@ nmmss:
       effective_to: null
       announced_on: 2022-02-22
       notes: Approved for 2021-22 to 2025-26; continuation beyond March 2026 to confirm.
+
+gst:
+  name: Goods and Services Tax rate structure
+  versions:
+    - id: v1
+      effective_from: 2017-07-01
+      effective_to: 2025-09-21
+      announced_on: 2017-06-30
+      notes: Four-slab structure (5, 12, 18, 28 percent). Item-level rates changed many times during this period; facts use the rate in force just before 22 Sep 2025.
+    - id: v2
+      effective_from: 2025-09-22
+      effective_to: null
+      announced_on: 2025-09-03
+      notes: 56th GST Council meeting (3 Sep 2025); effective date stated in PRID 2164586.
+
+capital-gains:
+  name: Capital gains tax rates and holding periods (Income-tax Act)
+  versions:
+    - id: v1
+      effective_from: 2018-04-01
+      effective_to: 2024-07-22
+      announced_on: 2018-02-01
+      notes: Section 112A introduced by Finance Act 2018; only a proposal-stage FAQ is captured for this period.
+    - id: v2
+      effective_from: 2024-07-23
+      effective_to: null
+      announced_on: 2024-07-23
+      notes: Transfers on or after 23 Jul 2024 (PRID 2036604). The raised Rs 1.25 lakh exemption applies from FY 2024-25.
+
+kcc-miss:
+  name: Kisan Credit Card and Modified Interest Subvention Scheme
+  versions:
+    - id: v1
+      effective_from: null
+      effective_to: 2025-05-28
+      notes: Start date not established. PRID 2131988 (28 May 2025) still describes the Rs 3 lakh limit as current, so 28 May 2025 is the last date documented in force.
+    - id: v2
+      effective_from: 2025-05-29
+      effective_to: null
+      announced_on: 2025-02-01  # Union Budget 2025-26; a Cabinet decision of 19 Mar 2025 is reported secondhand
+      notes: PLACEHOLDER BOUNDARY. The true start date is unknown (between 28 May 2025 and 11 Mar 2026); do not build as-of items for dates in that window. PRID 2238004 says the limits were enhanced "in 2025-26"; the collateral-free limit is stated as effective 1 Jan 2025. A primary instrument has not been checked.

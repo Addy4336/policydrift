@@ -3,7 +3,13 @@ from pathlib import Path
 import pytest
 
 from policydrift.bench.facts import Evidence, Fact, FactValue, load_facts, validate_facts
-from policydrift.bench.forms import amount_forms, count_forms, indian_grouping, to_script
+from policydrift.bench.forms import (
+    amount_forms,
+    count_forms,
+    indian_grouping,
+    percent_forms,
+    to_script,
+)
 from policydrift.ingest.registry import load_registry
 from policydrift.retrieval.search import load_chunks
 
@@ -26,16 +32,19 @@ def test_shipped_facts_are_consistent_with_sources_and_registry(
 
 
 def test_numeric_schemes_have_facts_and_all_kinds_are_covered(facts: list[Fact]) -> None:
-    assert len(facts) >= 16
+    assert len(facts) >= 30
     # pmjay-senior is deliberately absent: its change (everyone aged 70+ is eligible regardless
     # of income) is categorical, and the Phase 3 scorer is built for numeric answers.
     assert {f.scheme for f in facts} == set(load_registry_ids()) - {"pmjay-senior"}
-    assert {f.kind for f in facts} == {"inr", "count", "days", "years"}
+    assert {f.kind for f in facts} == {"inr", "count", "days", "years", "months", "percent"}
 
 
 def test_restated_facts_are_flagged(facts: list[Fact]) -> None:
     restated = {f.id for f in facts if f.old.evidence_kind == "restated"}
-    assert restated == {"mis-single-account-limit", "mis-joint-account-limit"}
+    assert {"mis-single-account-limit", "mis-joint-account-limit"} <= restated
+    # GST item rates are restated by construction: the 2017 release gives no item rates.
+    assert {f.id for f in facts if f.scheme == "gst"} <= restated
+    assert not any(f.current.evidence_kind == "restated" for f in facts)
 
 
 def _fact(**changes: object) -> Fact:
@@ -128,3 +137,15 @@ def test_count_forms_and_digit_conversion() -> None:
     assert count_forms(9, "hi") == ["9", "९"]
     assert count_forms(125, "gu") == ["125", "૧૨૫"]
     assert to_script("2024-25", "hi") == "२०२४-२५"
+
+
+def test_percent_forms_handle_fractions_and_scripts() -> None:
+    en = percent_forms(12.5, "en")
+    assert {"12.5", "12.5%", "12.5 per cent", "12.5 percent"} <= set(en)
+    assert "12.50" not in en
+    assert {"12.5 ટકા", "૧૨.૫ ટકા"} <= set(percent_forms(12.5, "gu"))
+    hi = percent_forms(20, "hi")
+    assert {"20 प्रतिशत", "२० प्रतिशत", "२०%"} <= set(hi)
+    gu = percent_forms(5, "gu")
+    assert {"5 ટકા", "૫ ટકા"} <= set(gu)
+    assert "5" in percent_forms(5, "en")

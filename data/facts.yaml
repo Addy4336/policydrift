@@ -1,5 +1,6 @@
 # Curated rule facts (milestone 2a). One entry per changed value.
-# - Values are integers: rupees for kind=inr, otherwise a plain count.
+# - Values are rupees for kind=inr, a percentage for kind=percent (may be fractional, e.g. 12.5),
+#   otherwise a plain whole number (count, days, months, years).
 # - `old` is the value in the superseded version; `current` is the value in the scheme's
 #   current version. `changed_in` is the version in which the value changed.
 # - Every quote must appear verbatim in the cited chunk (tests enforce this), and the value
@@ -286,3 +287,251 @@
     evidence:
       - {chunk_id: "nmmss:v2:en:1800307:000", quote: "Rs.3.5 lakh per annum"}
   changed_in: v2
+
+# --- Capital gains tax (Income-tax Act) --------------------------------------------------
+# v1 has only a proposal-stage FAQ (Finance Bill 2018), so most old values are restated.
+- id: cg-stcg-111a-rate
+  scheme: capital-gains
+  attribute: tax rate on short-term capital gains from listed equity shares and equity-oriented mutual funds on which securities transaction tax is paid (section 111A), in percent
+  kind: percent
+  old:
+    version: v1
+    value: 15
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:003", quote: "(Section 111A) has increased from 15 to 20%"}
+  current:
+    version: v2
+    value: 20
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:003", quote: "(Section 111A) has increased from 15 to 20%"}
+  changed_in: v2
+
+- id: cg-ltcg-112a-rate
+  scheme: capital-gains
+  attribute: tax rate on long-term capital gains above the exemption limit from listed equity shares and equity-oriented mutual funds (section 112A), in percent
+  kind: percent
+  old:
+    version: v1
+    value: 10
+    evidence:
+      - {chunk_id: "capital-gains:v1:en:1519095:001", quote: "taxed at a concessional rate of 10 percent"}
+  current:
+    version: v2
+    value: 12.5
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:003", quote: "(S. 112A) has increased from 10 to 12.5%"}
+  changed_in: v2
+
+- id: cg-ltcg-other-rate
+  scheme: capital-gains
+  attribute: tax rate on long-term capital gains on assets other than STT-paid listed equity (section 112), in percent
+  kind: percent
+  old:
+    version: v1
+    value: 20
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:004", quote: "This rate was earlier 20% with indexation"}
+  current:
+    version: v2
+    value: 12.5
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:004", quote: "rationalized to 12.5% without indexation (Section 112)"}
+  changed_in: v2
+  caveat: The old 20 percent was computed with indexation and the new 12.5 percent without it. Questions must say which rate is asked about, not just the number.
+
+- id: cg-112a-exemption-limit
+  scheme: capital-gains
+  attribute: annual amount of long-term capital gains from listed equity shares and equity-oriented funds that is exempt from tax under section 112A (in rupees)
+  kind: inr
+  old:
+    version: v1
+    value: 100000
+    quote_in_words: true
+    evidence:
+      - {chunk_id: "capital-gains:v1:en:1519095:001", quote: "exceeding Rupees one lakh"}
+  current:
+    version: v2
+    value: 125000
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:003", quote: "has also increased to 1.25 lakh Rs"}
+  changed_in: v2
+  caveat: The v1 source is a proposal-stage FAQ (Finance Bill 2018). The higher limit applies from FY 2024-25, a little before the 23 Jul 2024 date for the rate changes.
+
+- id: cg-holding-gold-unlisted-months
+  scheme: capital-gains
+  attribute: holding period, in months, after which gold and unlisted securities (other than unlisted shares) count as long-term capital assets
+  kind: months
+  old:
+    version: v1
+    value: 36
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:002", quote: "reduced from 36 months to 24 months"}
+  current:
+    version: v2
+    value: 24
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:002", quote: "reduced from 36 months to 24 months"}
+  changed_in: v2
+
+- id: cg-holding-business-trust-months
+  scheme: capital-gains
+  attribute: holding period, in months, after which listed units of business trusts (REITs and InvITs) count as long-term capital assets
+  kind: months
+  old:
+    version: v1
+    value: 36
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:002", quote: "reduced from 36 months to 12 months"}
+  current:
+    version: v2
+    value: 12
+    evidence:
+      - {chunk_id: "capital-gains:v2:en:2036604:002", quote: "reduced from 36 months to 12 months"}
+  changed_in: v2
+
+# --- GST rates on processed foods --------------------------------------------------------
+# The v1 document (2017) gives no item rates. Every old rate is restated from the "From"
+# column of the Sept 2025 annexure, so these facts are analysed as restated.
+- id: gst-uht-milk-rate
+  scheme: gst
+  attribute: GST rate on ultra-high temperature (UHT) milk, in percent
+  kind: percent
+  old:
+    version: v1
+    value: 5
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:007", quote: "Ultra-High Temperature (UHT) milk\n\n5%\n\nNil"}
+  current:
+    version: v2
+    value: 0
+    quote_in_words: true
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:007", quote: "Ultra-High Temperature (UHT) milk\n\n5%\n\nNil"}
+  changed_in: v2
+  caveat: Current rate is Nil, so the gold answer is "no GST" rather than a number. The scorer needs a zero/nil rule.
+
+- id: gst-ice-cream-rate
+  scheme: gst
+  attribute: GST rate on ice cream and other edible ice, in percent
+  kind: percent
+  old:
+    version: v1
+    value: 18
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:008", quote: "Ice cream and other edible ice, whether or not containing cocoa\n\n18%\n\n5%"}
+  current:
+    version: v2
+    value: 5
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:008", quote: "Ice cream and other edible ice, whether or not containing cocoa\n\n18%\n\n5%"}
+  changed_in: v2
+
+- id: gst-namkeen-rate
+  scheme: gst
+  attribute: GST rate on namkeens, bhujia, mixture, chabena and similar edible preparations, in percent
+  kind: percent
+  old:
+    version: v1
+    value: 12
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:008", quote: "Namkeens, bhujia, mixture, chabena and similar edible preparations\n\n12%\n\n5%"}
+  current:
+    version: v2
+    value: 5
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:008", quote: "Namkeens, bhujia, mixture, chabena and similar edible preparations\n\n12%\n\n5%"}
+  changed_in: v2
+
+- id: gst-almonds-rate
+  scheme: gst
+  attribute: GST rate on almonds, in percent
+  kind: percent
+  old:
+    version: v1
+    value: 12
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:007", quote: "Almonds\n\n12%\n\n5%"}
+  current:
+    version: v2
+    value: 5
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:007", quote: "Almonds\n\n12%\n\n5%"}
+  changed_in: v2
+
+- id: gst-chocolate-rate
+  scheme: gst
+  attribute: GST rate on chocolates and other food preparations containing cocoa, in percent
+  kind: percent
+  old:
+    version: v1
+    value: 18
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:007", quote: "Chocolates and other food preparations containing cocoa\n\n18%\n\n5%"}
+  current:
+    version: v2
+    value: 5
+    evidence:
+      - {chunk_id: "gst:v2:en:2164586:007", quote: "Chocolates and other food preparations containing cocoa\n\n18%\n\n5%"}
+  changed_in: v2
+
+# --- Kisan Credit Card and Modified Interest Subvention Scheme ---------------------------
+# The v2 start date is unconfirmed (see data/schemes.yaml); the values themselves are quoted.
+- id: kcc-short-term-loan-limit
+  scheme: kcc-miss
+  attribute: maximum short-term crop loan on a Kisan Credit Card that gets the interest subvention (in rupees)
+  kind: inr
+  old:
+    version: v1
+    value: 300000
+    evidence:
+      - {chunk_id: "kcc-miss:v1:en:2131988:000", quote: "short-term loans of up to Rs.3 lakh"}
+  current:
+    version: v2
+    value: 500000
+    evidence:
+      - {chunk_id: "kcc-miss:v2:en:2238004:008", quote: "raised from Rs 3 lakh to Rs 5 lakh"}
+  changed_in: v2
+
+- id: kcc-fisheries-allied-limit
+  scheme: kcc-miss
+  attribute: credit limit for animal husbandry and fisheries loans on a Kisan Credit Card (in rupees)
+  kind: inr
+  old:
+    version: v1
+    value: 200000
+    evidence:
+      - {chunk_id: "kcc-miss:v1:en:2131988:001", quote: "the interest benefit is applicable up to Rs.2 lakh"}
+  current:
+    version: v2
+    value: 500000
+    evidence:
+      - {chunk_id: "kcc-miss:v2:en:2238004:008", quote: "increased from Rs 2 lakh to Rs 5 lakh"}
+  changed_in: v2
+  caveat: The v1 release speaks of the interest benefit limit and the v2 backgrounder of the credit limit; questions should say "limit for animal husbandry or fisheries loans under the scheme".
+
+- id: kcc-collateral-free-limit
+  scheme: kcc-miss
+  attribute: maximum Kisan Credit Card loan per borrower that needs no collateral (in rupees)
+  kind: inr
+  old:
+    version: v1
+    value: 160000
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "kcc-miss:v2:en:2238004:009", quote: "increased from Rs 1.6 lakh to Rs 2 lakh per borrower"}
+  current:
+    version: v2
+    value: 200000
+    evidence:
+      - {chunk_id: "kcc-miss:v2:en:2238004:009", quote: "increased from Rs 1.6 lakh to Rs 2 lakh per borrower"}
+  changed_in: v2
+  caveat: Stated as effective 1 January 2025, earlier than the v2 start date in the registry.
