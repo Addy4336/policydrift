@@ -8,7 +8,7 @@ requests_per_minute:   # deliberately below the free-tier limits
 models:
   gemini-flash:
     provider: gemini
-    model: gemini-2.5-flash
-  groq-llama:
+    model: gemini-3.8-flash
+  groq-gpt-oss:
     provider: groq
-    model: llama-3.3-70b-versatile
+    model: openai/gpt-oss-120b

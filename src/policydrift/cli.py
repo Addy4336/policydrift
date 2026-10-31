@@ -199,7 +199,7 @@ def llm_check(root: RootOption = Path(".")) -> None:
             provider=spec["provider"],
             model=spec["model"],
             prompt="Reply with the single word: ready",
-            max_tokens=16,
+            max_tokens=512,
             purpose="check",
         )
         try:
