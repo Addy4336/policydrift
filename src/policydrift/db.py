@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Sequence
 from pathlib import Path
 
 import psycopg
+
+from policydrift.ingest.build import Chunk
 
 
 def read_env_file(path: Path) -> dict[str, str]:
@@ -29,6 +32,58 @@ def database_url(root: Path) -> str:
 
 def connect(root: Path) -> psycopg.Connection:
     return psycopg.connect(database_url(root), connect_timeout=15)
+
+
+CHUNK_COLUMNS = [
+    "chunk_id",
+    "scheme",
+    "version",
+    "effective_from",
+    "effective_to",
+    "announced_on",
+    "language",
+    "source_url",
+    "source_path",
+    "source_sha256",
+    "source_release_id",
+    "ministry",
+    "title",
+    "posted_on",
+    "chunk_index",
+    "raw_start",
+    "raw_end",
+    "text",
+]
+
+
+def vector_literal(vector: Sequence[float]) -> str:
+    return "[" + ",".join(f"{x:.8f}" for x in vector) + "]"
+
+
+def upload_chunks(
+    conn: psycopg.Connection,
+    chunks: Sequence[Chunk],
+    vectors: Sequence[Sequence[float]],
+    model_key: str,
+) -> int:
+    """Upsert chunks with their embeddings. Idempotent: reruns overwrite the same rows."""
+    cols = ", ".join([*CHUNK_COLUMNS, "embedding", "embedding_model"])
+    marks = ", ".join(["%s"] * len(CHUNK_COLUMNS)) + ", %s::vector, %s"
+    updates = ", ".join(
+        f"{c} = excluded.{c}" for c in [*CHUNK_COLUMNS[1:], "embedding", "embedding_model"]
+    )
+    sql = (
+        f"insert into public.chunks ({cols}) values ({marks}) "
+        f"on conflict (chunk_id) do update set {updates}"
+    )
+    with conn.transaction(), conn.cursor() as cur:
+        for chunk, vector in zip(chunks, vectors, strict=True):
+            row = chunk.model_dump()
+            cur.execute(
+                sql,
+                [row[c] for c in CHUNK_COLUMNS] + [vector_literal(vector), model_key],
+            )
+    return len(chunks)
 
 
 def apply_migrations(conn: psycopg.Connection, migrations_dir: Path) -> list[str]:

@@ -116,5 +116,67 @@ def db_migrate(root: RootOption = Path(".")) -> None:
     typer.echo(f"Applied: {', '.join(applied)}" if applied else "Nothing to apply; up to date.")
 
 
+def _local_retriever(root: Path):  # type: ignore[no-untyped-def]
+    from policydrift.ingest.registry import load_registry
+    from policydrift.retrieval.embed import (
+        DEFAULT_MODEL,
+        MODELS,
+        EmbeddingCache,
+        SentenceTransformerEmbedder,
+    )
+    from policydrift.retrieval.search import Retriever, load_chunks
+
+    model = MODELS[DEFAULT_MODEL]
+    chunks = load_chunks(root / "data" / "processed" / "chunks.jsonl")
+    registry = load_registry(root / "data" / "schemes.yaml")
+    cache = EmbeddingCache(root / ".cache" / "embeddings", model)
+    return Retriever(chunks, SentenceTransformerEmbedder(model), cache, registry)
+
+
+@db_app.command("load")
+def db_load(root: RootOption = Path(".")) -> None:
+    """Upload the chunks and their cached embeddings (idempotent upsert)."""
+    from policydrift.db import connect, upload_chunks
+    from policydrift.retrieval.embed import DEFAULT_MODEL
+
+    retriever = _local_retriever(root)
+    if retriever.computed:
+        typer.echo(f"note: {retriever.computed} passages were not cached and had to be embedded")
+    with connect(root) as conn:
+        n = upload_chunks(conn, retriever.chunks, retriever.matrix.tolist(), DEFAULT_MODEL)
+    typer.echo(f"Uploaded {n} chunks.")
+
+
+@db_app.command("check")
+def db_check(root: RootOption = Path("."), k: int = 5) -> None:
+    """Compare Supabase match_chunks with local search on every dev probe."""
+    from policydrift.db import connect, vector_literal
+    from policydrift.retrieval.probes import load_probes
+    from policydrift.retrieval.search import Filters
+
+    retriever = _local_retriever(root)
+    probes = load_probes(root / "data" / "probes" / "retrieval_probes.jsonl")
+    mismatches = 0
+    with connect(root) as conn, conn.cursor() as cur:
+        cur.execute("select count(*) from public.chunks")
+        row = cur.fetchone()
+        typer.echo(f"rows in database: {row[0] if row else 0} (local: {len(retriever.chunks)})")
+        for p in probes:
+            lang = p.doc_lang if p.cross_lingual else None
+            local = [h.chunk.chunk_id for h in retriever.search(p.query, k, Filters(language=lang))]
+            qvec, _ = retriever.cache.get_or_compute(retriever.embedder, "query", [p.query])
+            cur.execute(
+                "select chunk_id from public.match_chunks(%s::vector, %s, null, %s)",
+                (vector_literal(qvec[0]), k, lang),
+            )
+            remote = [r[0] for r in cur.fetchall()]
+            if local != remote:
+                mismatches += 1
+                typer.echo(f"  differs: {p.id}\n    local:  {local}\n    remote: {remote}")
+    typer.echo(f"{len(probes) - mismatches}/{len(probes)} probes return identical top-{k}.")
+    if mismatches:
+        raise typer.Exit(code=1)
+
+
 if __name__ == "__main__":
     app()
