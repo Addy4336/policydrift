@@ -15,6 +15,8 @@ from policydrift.ingest.registry import load_registry, validate_registry
 app = typer.Typer(help="PolicyDrift research pipeline.", no_args_is_help=True)
 ingest_app = typer.Typer(help="Build the versioned document store.", no_args_is_help=True)
 app.add_typer(ingest_app, name="ingest")
+llm_app = typer.Typer(help="Cached, rate-limited LLM client.", no_args_is_help=True)
+app.add_typer(llm_app, name="llm")
 
 RootOption = Annotated[Path, typer.Option(help="Repository root.")]
 
@@ -180,3 +182,36 @@ def db_check(root: RootOption = Path("."), k: int = 5) -> None:
 
 if __name__ == "__main__":
     app()
+
+
+@llm_app.command("check")
+def llm_check(root: RootOption = Path(".")) -> None:
+    """Send one tiny prompt to each provider that has a key (cached, so repeat runs are free)."""
+    from policydrift.llm import LLMError, LLMRequest, client_from_root
+    from policydrift.llm.client import KEY_VARS, load_models
+
+    models = load_models(root / "configs" / "models.yaml")["models"]
+    assert isinstance(models, dict)
+    client = client_from_root(root)
+    failed = False
+    for name, spec in models.items():
+        request = LLMRequest(
+            provider=spec["provider"],
+            model=spec["model"],
+            prompt="Reply with the single word: ready",
+            max_tokens=16,
+            purpose="check",
+        )
+        try:
+            reply = client.complete(request)
+        except LLMError as exc:
+            failed = True
+            typer.echo(f"{name}: FAILED ({exc}); key variable is {KEY_VARS[spec['provider']]}")
+            continue
+        origin = "cache" if reply.cached else f"{reply.latency_s}s"
+        typer.echo(
+            f"{name}: {reply.text.strip()!r} ({origin}, version {reply.model_version}, "
+            f"tokens {reply.input_tokens}/{reply.output_tokens})"
+        )
+    if failed:
+        raise typer.Exit(code=1)

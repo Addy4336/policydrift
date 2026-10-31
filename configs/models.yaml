@@ -1,0 +1,14 @@
+# Model registry for the cached LLM client (free tiers only).
+# Model ids and rate limits change often: confirm them in each provider's console before
+# the first real run, and record the version each response reports (stored in runs/).
+requests_per_minute:   # deliberately below the free-tier limits
+  gemini: 8
+  groq: 20
+
+models:
+  gemini-flash:
+    provider: gemini
+    model: gemini-2.5-flash
+  groq-llama:
+    provider: groq
+    model: llama-3.3-70b-versatile
