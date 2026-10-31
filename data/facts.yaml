@@ -1,0 +1,288 @@
+# Curated rule facts (milestone 2a). One entry per changed value.
+# - Values are integers: rupees for kind=inr, otherwise a plain count.
+# - `old` is the value in the superseded version; `current` is the value in the scheme's
+#   current version. `changed_in` is the version in which the value changed.
+# - Every quote must appear verbatim in the cited chunk (tests enforce this), and the value
+#   must appear in the quote unless quote_in_words is set.
+# - evidence_kind "restated" means no document from the old period states the old value; it is
+#   known only from a later "raised from X to Y" sentence. Analyse those separately.
+
+# --- PM Ujjwala Yojana --------------------------------------------------------------
+- id: pmuy-subsidy-per-cylinder
+  scheme: pmuy-subsidy
+  attribute: targeted LPG subsidy per 14.2 kg cylinder for PM Ujjwala Yojana beneficiaries (in rupees)
+  kind: inr
+  old:
+    version: v1
+    value: 200
+    evidence:
+      - {chunk_id: "pmuy-subsidy:v1:en:1910516:000", quote: "Rs.200 per 14.2 kg cylinder"}
+  current:
+    version: v3
+    value: 300
+    evidence:
+      - {chunk_id: "pmuy-subsidy:v3:en:2154117:000", quote: "Rs.300 per 14.2 kg cylinder"}
+  changed_in: v2
+
+- id: pmuy-refills-per-year
+  scheme: pmuy-subsidy
+  attribute: maximum number of LPG refills per year that receive the PM Ujjwala targeted subsidy
+  kind: count
+  old:
+    version: v2
+    value: 12
+    evidence:
+      - {chunk_id: "pmuy-subsidy:v2:en:2012354:000", quote: "up to 12 refills per year"}
+  current:
+    version: v3
+    value: 9
+    evidence:
+      - {chunk_id: "pmuy-subsidy:v3:en:2154117:000", quote: "up to 9 refills per year"}
+  changed_in: v3
+  caveat: A June 2026 PIB note mentions 4 refills; no decision document found, so v3 stays current.
+
+# --- Rural employment guarantee ---------------------------------------------------------
+- id: rural-guaranteed-days
+  scheme: rural-employment-guarantee
+  attribute: statutory minimum days of guaranteed wage employment per rural household per financial year
+  kind: days
+  old:
+    version: v1
+    value: 100
+    quote_in_words: true
+    evidence:
+      - {chunk_id: "rural-employment-guarantee:v1:en:2080090:000", quote: "at least one hundred days"}
+  current:
+    version: v2
+    value: 125
+    evidence:
+      - {chunk_id: "rural-employment-guarantee:v2:en:2207187:003", quote: "not less than 125 days"}
+  changed_in: v2
+
+# --- PM SVANidhi ------------------------------------------------------------------------
+- id: svanidhi-first-loan
+  scheme: pm-svanidhi
+  attribute: maximum amount of the first loan to a street vendor under PM SVANidhi (in rupees)
+  kind: inr
+  old:
+    version: v1
+    value: 10000
+    evidence:
+      - {chunk_id: "pm-svanidhi:v1:en:1881759:000", quote: "1st & 2nd loans of ₹10,000 and ₹20,000"}
+  current:
+    version: v2
+    value: 15000
+    evidence:
+      - {chunk_id: "pm-svanidhi:v2:en:2161157:001", quote: "first tranche loans increased up to ₹15,000"}
+  changed_in: v2
+
+- id: svanidhi-second-loan
+  scheme: pm-svanidhi
+  attribute: maximum amount of the second loan to a street vendor under PM SVANidhi (in rupees)
+  kind: inr
+  old:
+    version: v1
+    value: 20000
+    evidence:
+      - {chunk_id: "pm-svanidhi:v1:en:1881759:000", quote: "1st & 2nd loans of ₹10,000 and ₹20,000"}
+  current:
+    version: v2
+    value: 25000
+    evidence:
+      - {chunk_id: "pm-svanidhi:v2:en:2161157:001", quote: "second tranche loans increased up to ₹25,000"}
+  changed_in: v2
+
+# --- PMAY-Urban ---------------------------------------------------------------------------
+- id: pmay-mig-income-ceiling
+  scheme: pmay-urban
+  attribute: highest annual household income (in rupees) that still qualifies for the middle-income-group interest subsidy under PMAY-Urban
+  kind: inr
+  old:
+    version: v1
+    value: 1800000
+    evidence:
+      - {chunk_id: "pmay-urban:v1:en:1535218:000", quote: "From 12,00,001 up to 18,00,000"}
+  current:
+    version: v2
+    value: 900000
+    evidence:
+      - {chunk_id: "pmay-urban:v2:en:2043924:003", quote: "annual income from ₹6 lakh up to ₹9 lakh"}
+  changed_in: v2
+  caveat: >-
+    v1 (CLSS-MIG) had two bands, MIG-I up to 12 lakh and MIG-II up to 18 lakh; the old value is the
+    upper band. CLSS-MIG closed in 2021, so this compares scheme designs. Questions must say
+    "highest income band".
+
+- id: pmay-interest-subsidy-tenure
+  scheme: pmay-urban
+  attribute: maximum loan tenure (in years) for which the PMAY-Urban interest subsidy is calculated
+  kind: years
+  old:
+    version: v1
+    value: 20
+    evidence:
+      - {chunk_id: "pmay-urban:v1:en:1535218:000", quote: "Maximum Loan Tenure\n\n20\n\n20"}
+  current:
+    version: v2
+    value: 12
+    evidence:
+      - {chunk_id: "pmay-urban:v2:en:2043924:008", quote: "12 years tenure"}
+  changed_in: v2
+  caveat: Compares the CLSS-MIG design with the PMAY-U 2.0 interest subsidy scheme.
+
+# --- Income tax, new regime -------------------------------------------------------------
+- id: tax-basic-exemption
+  scheme: income-tax-new-regime
+  attribute: annual income (in rupees) up to which no tax rate applies (the nil slab) in the new tax regime
+  kind: inr
+  old:
+    version: fy2023-24
+    value: 300000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2023-24:en:1895286:001", quote: "tax exemption limit to Rs. 3 lakh"}
+  current:
+    version: fy2025-26
+    value: 400000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098406:002", quote: "0-4 lakh rupees\n\nNil"}
+  changed_in: fy2025-26
+  caveat: The FY2024-25 slab table is an image in the English release; the value is unchanged between FY2023-24 and FY2024-25.
+
+- id: tax-top-rate-threshold
+  scheme: income-tax-new-regime
+  attribute: annual income (in rupees) above which the highest slab rate of 30 per cent applies in the new tax regime
+  kind: inr
+  old:
+    version: fy2023-24
+    value: 1500000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2023-24:en:1895286:001", quote: "Above 15 lakh\n\n30"}
+  current:
+    version: fy2025-26
+    value: 2400000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098406:002", quote: "Above 24 lakh rupees\n\n30 per cent"}
+  changed_in: fy2025-26
+
+- id: tax-standard-deduction
+  scheme: income-tax-new-regime
+  attribute: standard deduction (in rupees) for salaried individuals under the new tax regime
+  kind: inr
+  old:
+    version: fy2023-24
+    value: 50000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2023-24:en:1895286:003", quote: "standard deduction of Rs. 50,000"}
+  current:
+    version: fy2025-26
+    value: 75000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098406:001", quote: "standard deduction of Rs. 75,000"}
+  changed_in: fy2024-25
+
+- id: tax-no-tax-income-limit
+  scheme: income-tax-new-regime
+  attribute: annual income (in rupees) up to which no income tax is payable under the new tax regime after the rebate
+  kind: inr
+  old:
+    version: fy2023-24
+    value: 700000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2023-24:en:1895286:001", quote: "income up to Rs. 7 lakh will not have to pay any tax"}
+  current:
+    version: fy2025-26
+    value: 1200000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098406:001", quote: "no income tax payable upto income of Rs. 12 lakh"}
+  changed_in: fy2025-26
+  caveat: The FY2024-25 rebate threshold (7 lakh) is not stated in any captured FY2024-25 text.
+
+# --- PM Mudra Yojana --------------------------------------------------------------------
+- id: mudra-max-loan
+  scheme: pm-mudra
+  attribute: maximum collateral-free loan (in rupees) under the Pradhan Mantri Mudra Yojana
+  kind: inr
+  old:
+    version: v1
+    value: 1000000
+    evidence:
+      - {chunk_id: "pm-mudra:v1:en:1914739:000", quote: "micro credit of up to ₹10 lakh"}
+  current:
+    version: v2
+    value: 2000000
+    evidence:
+      - {chunk_id: "pm-mudra:v2:en:2069170:005", quote: "Tarun Plus: Rs. 10 lakh and up to Rs. 20 lakhs"}
+  changed_in: v2
+
+# --- Small savings --------------------------------------------------------------------
+- id: scss-max-deposit
+  scheme: scss-mis
+  attribute: maximum deposit (in rupees) in the Senior Citizens' Savings Scheme
+  kind: inr
+  old:
+    version: v1
+    value: 1500000
+    evidence:
+      - {chunk_id: "scss-mis:v1:en:r3906:001", quote: "maximum of Rs.15 lakh"}
+  current:
+    version: v2
+    value: 3000000
+    evidence:
+      - {chunk_id: "scss-mis:v2:en:1912742:001", quote: "from ₹ 15 lakh to ₹ 30 lakh"}
+  changed_in: v2
+
+- id: mis-single-account-limit
+  scheme: scss-mis
+  attribute: maximum investment (in rupees) in a single account of the Post Office Monthly Income Scheme
+  kind: inr
+  old:
+    version: v1
+    value: 450000
+    evidence_kind: restated
+    quote_in_words: true
+    evidence:
+      - {chunk_id: "scss-mis:v2:en:1912742:001", quote: "four lakh fifty thousand"}
+  current:
+    version: v2
+    value: 900000
+    quote_in_words: true
+    evidence:
+      - {chunk_id: "scss-mis:v2:en:1912742:001", quote: "nine lakh for a single account"}
+  changed_in: v2
+  caveat: The old value is known only from the 2023 amendment notice that raised it.
+
+- id: mis-joint-account-limit
+  scheme: scss-mis
+  attribute: maximum investment (in rupees) in a joint account of the Post Office Monthly Income Scheme
+  kind: inr
+  old:
+    version: v1
+    value: 900000
+    evidence_kind: restated
+    quote_in_words: true
+    evidence:
+      - {chunk_id: "scss-mis:v2:en:1912742:001", quote: "from ₹ nine lakh to ₹ 15 lakh for a joint account"}
+  current:
+    version: v2
+    value: 1500000
+    evidence:
+      - {chunk_id: "scss-mis:v2:en:1912742:001", quote: "to ₹ 15 lakh for a joint account"}
+  changed_in: v2
+  caveat: The old value is known only from the 2023 amendment notice that raised it.
+
+# --- National Means-cum-Merit Scholarship -----------------------------------------------
+- id: nmmss-income-ceiling
+  scheme: nmmss
+  attribute: maximum parental annual income (in rupees) for eligibility for the National Means-cum-Merit Scholarship
+  kind: inr
+  old:
+    version: v1
+    value: 150000
+    evidence:
+      - {chunk_id: "nmmss:v1:en:r116460:001", quote: "not more than Rs. 1,50,000/- per annum"}
+  current:
+    version: v2
+    value: 350000
+    evidence:
+      - {chunk_id: "nmmss:v2:en:1800307:000", quote: "Rs.3.5 lakh per annum"}
+  changed_in: v2
