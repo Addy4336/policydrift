@@ -17,6 +17,8 @@ ingest_app = typer.Typer(help="Build the versioned document store.", no_args_is_
 app.add_typer(ingest_app, name="ingest")
 llm_app = typer.Typer(help="Cached, rate-limited LLM client.", no_args_is_help=True)
 app.add_typer(llm_app, name="llm")
+bench_app = typer.Typer(help="Build the benchmark.", no_args_is_help=True)
+app.add_typer(bench_app, name="bench")
 
 RootOption = Annotated[Path, typer.Option(help="Repository root.")]
 
@@ -215,3 +217,37 @@ def llm_check(root: RootOption = Path(".")) -> None:
         )
     if failed:
         raise typer.Exit(code=1)
+
+
+@bench_app.command("draft")
+def bench_draft(
+    root: RootOption = Path("."),
+    model: Annotated[str, typer.Option(help="Key in configs/models.yaml.")] = "groq-gpt-oss",
+    limit: Annotated[int, typer.Option(help="Only the first N facts (0 = all).")] = 0,
+) -> None:
+    """Draft en/hi/gu question wording for every fact x style (unverified; see milestone 2d)."""
+    from policydrift.bench.drafts import draft_all, write_drafts
+    from policydrift.bench.facts import load_facts
+    from policydrift.llm import client_from_root
+    from policydrift.llm.client import load_models
+
+    models = load_models(root / "configs" / "models.yaml")["models"]
+    assert isinstance(models, dict)
+    spec = models[model]
+    facts = load_facts(root / "data" / "facts.yaml")
+    if limit:
+        facts = facts[:limit]
+    registry = load_registry(root / "data" / "schemes.yaml")
+    client = client_from_root(root)
+    drafts, failed = draft_all(client, facts, registry, spec["provider"], spec["model"])
+    out = root / "data" / "benchmark" / "drafts" / "drafts.jsonl"
+    write_drafts(drafts, out)
+    leaky = [d.item_id for d in drafts if d.leaks]
+    typer.echo(
+        f"{len(drafts)} drafts -> {out} ({client.calls_made} new calls, rest cached); "
+        f"{len(failed)} failed, {len(leaky)} flagged as leaking a value"
+    )
+    for item_id in failed:
+        typer.echo(f"  failed: {item_id}", err=True)
+    for item_id in leaky:
+        typer.echo(f"  leak: {item_id}", err=True)
