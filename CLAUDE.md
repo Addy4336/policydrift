@@ -23,7 +23,7 @@ The hypotheses are recorded in [docs/preregistration.md](docs/preregistration.md
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Literature and novelty check (`docs/related_work.md`) | done; framing accepted 2026-10-28 |
-| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (sources), 1b (46 captures, ingest, chunks) and 1c-local (e5-base, filtered exact search, probes; see `docs/retrieval.md`) done, awaiting review; Supabase/pgvector (demo only) not started |
+| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (sources), 1b (46 captures, ingest, chunks) and 1c-local (e5-base, filtered exact search, probes; see `docs/retrieval.md`) and Supabase/pgvector demo store (276 chunks uploaded; `db migrate|load|check`) done: Phase 1 awaiting review |
 | 2 | Benchmark: 200–400 version-sensitive question pairs × en/hi/gu, human-verified, frozen test split | not started |
 | 3 | Config-driven experiment harness, raw logging, scoring, judge-vs-human agreement | not started |
 | 4 | Mitigations: date-stamped prompts, conflict-checker agent, version-filtered retrieval | not started |
