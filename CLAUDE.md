@@ -23,7 +23,7 @@ The hypotheses are recorded in [docs/preregistration.md](docs/preregistration.md
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Literature and novelty check (`docs/related_work.md`) | done; framing accepted 2026-10-28 |
-| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (sources) and 1b (46 captures incl. old versions, ingest, chunks) done, awaiting review; 1c (retrieval) not started |
+| 1 | Versioned document store from official sources (`data/`, `src/policydrift/ingest`, `retrieval`) | 1a (sources), 1b (46 captures, ingest, chunks) and 1c-local (e5-base, filtered exact search, probes; see `docs/retrieval.md`) done, awaiting review; Supabase/pgvector (demo only) not started |
 | 2 | Benchmark: 200–400 version-sensitive question pairs × en/hi/gu, human-verified, frozen test split | not started |
 | 3 | Config-driven experiment harness, raw logging, scoring, judge-vs-human agreement | not started |
 | 4 | Mitigations: date-stamped prompts, conflict-checker agent, version-filtered retrieval | not started |
@@ -77,6 +77,7 @@ Commands use the `policydrift` CLI (Typer) through `uv run`, so they work the sa
 | `uv run mypy src` | Type check | available |
 | `uv run policydrift ingest verify` | Check every captured source against its manifest hash, and the version registry | available |
 | `uv run policydrift ingest chunk` | Rebuild `data/processed/chunks.jsonl` (commit the result; a test fails if it is stale) | available |
+| `uv run policydrift index probe [--model e5-base\|bge-m3]` | Embed the chunks (cached under `.cache/`; downloads the model on first use) and report recall on the dev probes | available |
 | `uv run policydrift bench ...` | Generate drafts, export/import verification CSVs, freeze splits | Phase 2 |
 | `uv run policydrift run configs/experiments/<name>.yaml` | Run one experiment | Phase 3 |
 | `uv run policydrift paper` | Regenerate every figure and table in `paper/` | Phase 5 |

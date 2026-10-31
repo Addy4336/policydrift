@@ -55,5 +55,52 @@ def chunk(
     )
 
 
+index_app = typer.Typer(help="Embeddings and retrieval.", no_args_is_help=True)
+app.add_typer(index_app, name="index")
+
+
+@index_app.command("probe")
+def probe(
+    model: Annotated[str, typer.Option(help="Embedding model key: e5-base or bge-m3.")] = "e5-base",
+    root: RootOption = Path("."),
+) -> None:
+    """Embed the chunk store (cached) and report retrieval quality on the dev probes."""
+    import time
+
+    from policydrift.retrieval.embed import MODELS, EmbeddingCache, SentenceTransformerEmbedder
+    from policydrift.retrieval.probes import evaluate, gold_ids, load_probes, summarise
+    from policydrift.retrieval.search import Retriever, load_chunks
+
+    if model not in MODELS:
+        raise typer.BadParameter(f"unknown model '{model}'; choose from {sorted(MODELS)}")
+    chunks = load_chunks(root / "data" / "processed" / "chunks.jsonl")
+    probes = load_probes(root / "data" / "probes" / "retrieval_probes.jsonl")
+    empty = [p.id for p in probes if not gold_ids(p, chunks)]
+    if empty:
+        typer.echo(f"probes with no gold chunk: {empty}", err=True)
+        raise typer.Exit(code=1)
+
+    started = time.perf_counter()
+    embedder = SentenceTransformerEmbedder(MODELS[model])
+    cache = EmbeddingCache(root / ".cache" / "embeddings", MODELS[model])
+    retriever = Retriever(chunks, embedder, cache)
+    typer.echo(
+        f"{model}: embedded {retriever.computed} new passages "
+        f"({len(chunks)} total) in {time.perf_counter() - started:.0f}s"
+    )
+    results = evaluate(retriever, probes)
+    for name, row in summarise(results).items():
+        typer.echo(
+            f"  {name:6s} n={int(row['n']):2d}"
+            f"  R@1={row['recall@1']:.2f}  R@5={row['recall@5']:.2f}"
+            f"  R@10={row['recall@10']:.2f}  MRR={row['mrr']:.2f}"
+            f"  scheme@1={row['top1_right_scheme']:.2f}"
+            f"  wrong-version@1={row['top1_wrong_version']:.2f}"
+        )
+    for r in results:
+        if r.first_gold_rank is None or r.first_gold_rank > 5:
+            typer.echo(f"  miss: {r.probe.id} (first gold rank {r.first_gold_rank})")
+
+
 if __name__ == "__main__":
     app()
