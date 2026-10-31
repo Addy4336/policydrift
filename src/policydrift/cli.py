@@ -102,5 +102,19 @@ def probe(
             typer.echo(f"  miss: {r.probe.id} (first gold rank {r.first_gold_rank})")
 
 
+db_app = typer.Typer(help="Supabase demo database.", no_args_is_help=True)
+app.add_typer(db_app, name="db")
+
+
+@db_app.command("migrate")
+def db_migrate(root: RootOption = Path(".")) -> None:
+    """Apply any unapplied SQL files in supabase/migrations to the database in .env."""
+    from policydrift.db import apply_migrations, connect
+
+    with connect(root) as conn:
+        applied = apply_migrations(conn, root / "supabase" / "migrations")
+    typer.echo(f"Applied: {', '.join(applied)}" if applied else "Nothing to apply; up to date.")
+
+
 if __name__ == "__main__":
     app()
