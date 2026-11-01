@@ -64,8 +64,9 @@ Each model's R0 answer to each item is labelled `knows_old`, `knows_current` or 
 - **Scoring order:**
   1. A deterministic matcher normalises numbers, covering lakh/crore, Devanagari and Gujarati digits, units and dates, then compares the answer with the old and current values of the item.
   2. An LLM judge sees only answers the matcher cannot decide. It is framed as a *matching* task ("which of these values does the answer state, if any?"), so it needs no knowledge of the rule.
-- **Judge validation:** humans double-label a stratified sample of judged answers. The sample covers languages and conditions, at least 200 answers. Report Cohen's κ for judge vs human and for human vs human.
-  - **OPEN:** confirm the κ target. Proposed: κ ≥ 0.80. If the target is missed, everything the judge decided is labelled by humans instead.
+- **Judge validation:** a human labels a stratified sample of answers, with the automatic label hidden. The sample covers languages and conditions, and favours answers the judge decided (about two thirds), with the rest decided by the matcher so the matcher is checked too. Report Cohen's κ and accuracy of the automatic label against the human label, separately for judge-decided and matcher-decided answers.
+  - **Settled 2026-11-01 (draft, before any test run):** the project has one human labeller, so human-vs-human κ cannot be reported and this is a stated limitation. Calibration now uses about 45 labelled dev answers (`policydrift label-sheet`, `label-agree`), not 200. A larger validation sample drawn from the test-split answers is **OPEN** (proposed: 100 answers, labelled after the final run).
+  - **OPEN:** confirm the κ target. Proposed: κ ≥ 0.80. If the target is missed, everything the judge decided is labelled by humans instead. Answers the judge cannot parse are labelled `unresolved` and reported, never silently dropped.
 
 ### 5. H1 decision rule (confirmatory)
 H1 is tested separately in R2 and R3, on outdated rates pooled across models and languages. The 95% CI comes from a cluster bootstrap over items, with 10,000 resamples. H1 is supported in a condition if the CI's lower bound is above the threshold *τ* after Holm correction across the two conditions. Per-model and per-language rates are reported alongside.
@@ -87,7 +88,7 @@ H1 is tested separately in R2 and R3, on outdated rates pooled across models and
 α = 0.05. Holm correction is applied within each hypothesis family: H1 (2 tests), H2 (2 tests) and H3 (3 tests). Exploratory analyses get no correction and are labelled exploratory.
 
 ### 9. Models, decoding and seeds
-- **OPEN (decide in Phase 3, before any test-split run):** the model list. At least three free-tier models, including at least one small open-weight model, because small models were more affected in prior work. Record exact model IDs and versions.
+- **Model list (draft 2026-11-01; freeze before any test-split run):** `openai/gpt-oss-20b` (small, open-weight, Groq), `qwen/qwen3.8-27b` (open-weight, Groq) and `gemini-3.1-flash-lite` (small, closed, Gemini). `gemini-3.8-flash` is registered but not in the baseline because of its free-tier rate limits. The judge is `openai/gpt-oss-120b`, which is not one of the answering models. Exact model IDs and the versions each response reports are logged in `runs/<run_id>/run.json`. Free-tier availability changes, so a model that disappears before the final run is replaced and the change is logged here.
 - **Decoding:** temperature 0, with a fixed seed where the API supports one. Nondeterminism is estimated by re-running a 10% subsample three times and reported.
 
 ### 10. Splits, exclusions and sample size
