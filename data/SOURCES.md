@@ -1,6 +1,6 @@
 # Data sources
 
-- **Status:** milestone 1b (2026-10-28). The 60 PIB releases listed below (46 in the first nine schemes, 14 in the three added on 2026-10-31) are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
+- **Status:** milestone 1b (2026-10-28). The 61 PIB releases listed below (46 in the first nine schemes, 14 in the three added on 2026-10-31) are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
 - **Not yet captured:** the VB-G RAM G backgrounder and the primary instruments (see "Remaining gaps" at the end).
 - **Rule:** official government publications only (CLAUDE.md, hard rule 3).
 
@@ -80,7 +80,7 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 | V1 | 2022-05 (start of subsidy) | ₹200 per cylinder, up to 12 refills per year | CCEA, 24 Mar 2023 (continuation for FY 2022-23 and 2023-24): 1910516 / 1910524 / 1910534 |
 | V2 | 2023-10-05 | ₹300 per cylinder, up to 12 refills per year | Cabinet, 7 Mar 2024 (continuation for FY 2024-25): 2012354 / 2012433 / 2012493 |
 | V3 | 2025-04-01 (FY 2025-26; approved 8 Aug 2025) | ₹300 per cylinder, up to **9** refills per year | Cabinet, 8 Aug 2025: 2154117 / 2154218 / 2154137. This release also restates V1 and V2. |
-| V4? | unclear | ₹300 per cylinder on the **first 4** refills each year | MoPNG release, 7 Jun 2026: 2269944 (en only, so far). **Unconfirmed:** no Cabinet decision found. Excluded until the decision document turns up. |
+| V4 | 2026-04-01 (**unconfirmed boundary**) | ₹300 per cylinder on the **first 4** refills each year | MoPNG price-comparison release, 7 Jun 2026: 2269944 (en only). It states the first-four-refills rule but also calls the support "unchanged"; it is not a decision document. Press reports put the cut from 9 to 4 at FY 2026-27. Found by the human reviewer. |
 
 - **Primary instrument:** MoPNG orders, to locate. The 5 Oct 2023 effective date is stated in PIB material and should be confirmed against the order.
 
@@ -179,7 +179,7 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 | Candidate | Status | Reason |
 |---|---|---|
 | Kisan Credit Card / Modified Interest Subvention Scheme limit ₹3L → ₹5L | Reserve | Announced in Budget 2025-26. A May 2025 Cabinet release still called it "under consideration"; a Mar 2026 backgrounder calls it done. Usable only once an effective-date document is found. |
-| Ujjwala V4 (4 refills) | Reserve | No decision document found (see scheme 2). |
+| Ujjwala V4 (4 refills) | Captured as v4 | Boundary and decision document still unconfirmed (see scheme 2). |
 | Gujarat PMJAY-MA cover raised to ₹10 lakh | **Rejected** | No official source found. Gujarat's own page still states ₹5 lakh. It was a recollection of mine that the sources did not support. |
 | A Gujarat state scheme (Gujarati-original text) | Open | Not yet found. It would add native Gujarati documents rather than translations. Worth one more search in 1b. |
 | Post-Matric Scholarship (SC/OBC) income ceiling | Rejected | Last changes were in 2017 or earlier (₹2.5 lakh); no recent version. |

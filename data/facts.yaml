@@ -19,28 +19,29 @@
     evidence:
       - {chunk_id: "pmuy-subsidy:v1:en:1910516:000", quote: "Rs.200 per 14.2 kg cylinder"}
   current:
-    version: v3
+    version: v4
     value: 300
     evidence:
-      - {chunk_id: "pmuy-subsidy:v3:en:2154117:000", quote: "Rs.300 per 14.2 kg cylinder"}
+      - {chunk_id: "pmuy-subsidy:v4:en:2269944:002", quote: "direct benefit transfer of ₹300 a cylinder"}
   changed_in: v2
 
 - id: pmuy-refills-per-year
   scheme: pmuy-subsidy
-  attribute: maximum number of LPG refills per year that receive the PM Ujjwala targeted subsidy
+  attribute: number of LPG refills per year that receive the PM Ujjwala targeted subsidy of Rs 300 per cylinder
   kind: count
   old:
-    version: v2
-    value: 12
-    evidence:
-      - {chunk_id: "pmuy-subsidy:v2:en:2012354:000", quote: "up to 12 refills per year"}
-  current:
     version: v3
     value: 9
     evidence:
       - {chunk_id: "pmuy-subsidy:v3:en:2154117:000", quote: "up to 9 refills per year"}
-  changed_in: v3
-  caveat: A June 2026 PIB note mentions 4 refills; no decision document found, so v3 stays current.
+  current:
+    version: v4
+    value: 4
+    quote_in_words: true
+    evidence:
+      - {chunk_id: "pmuy-subsidy:v4:en:2269944:002", quote: "₹300 a cylinder on the first four refills each year"}
+  changed_in: v4
+  caveat: Unconfirmed change. Press reports say the cap fell from 9 to 4 refills from FY 2026-27 (found by the human reviewer on 2026-11-01). The only official document is MoPNG PRID 2269944 (7 Jun 2026), which states the first-four-refills rule but also calls the support "unchanged". No decision document found. Do not use in confirmatory analysis until one is.
 
 # --- Rural employment guarantee ---------------------------------------------------------
 - id: rural-guaranteed-days

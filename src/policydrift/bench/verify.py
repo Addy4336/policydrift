@@ -169,6 +169,11 @@ def import_review_sheet(
     return items, report
 
 
+def load_verified(path: Path) -> list[VerifiedItem]:
+    with path.open(encoding="utf-8") as f:
+        return [VerifiedItem.model_validate_json(line) for line in f if line.strip()]
+
+
 def write_verified(items: Sequence[VerifiedItem], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="\n") as f:

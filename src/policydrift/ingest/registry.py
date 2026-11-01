@@ -29,6 +29,7 @@ class Scheme(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     name: str
+    question_name: str | None = None  # how questions should refer to it; defaults to name
     versions: list[Version]
 
     def version(self, version_id: str) -> Version:

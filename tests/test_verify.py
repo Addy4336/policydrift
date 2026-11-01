@@ -46,7 +46,7 @@ def test_export_shows_gold_and_source_to_the_reviewer(root: Path, tmp_path: Path
     with path.open(encoding="utf-8-sig", newline="") as f:
         row = next(csv.DictReader(f))
     assert row["gold_current"].startswith("300") and row["gold_old"].startswith("200")
-    assert "Rs.300" in row["source_quote"] and row["hi"] == "सब्सिडी कितनी है?"
+    assert "₹300" in row["source_quote"] and row["hi"] == "सब्सिडी कितनी है?"
     assert row["include"] == ""
 
 

@@ -81,9 +81,9 @@ def test_draft_all_pairs_languages_flags_leaks_and_records_failures(
     client = _client(tmp_path, httpx.MockTransport(handler))
     drafts, failed = draft_all(client, facts, registry, "groq", "m")
     by_style = {d.style: d for d in drafts}
-    assert set(by_style) == {"direct", "scenario"} and failed == [
-        "pmuy-subsidy-per-cylinder/helpline"
-    ]
+    assert set(by_style) == {"direct", "scenario"} and failed == []
+    _, failed = draft_all(client, facts, registry, "groq", "m", styles=("helpline",))
+    assert failed == ["pmuy-subsidy-per-cylinder/helpline"]
     assert by_style["direct"].leaks == [] and by_style["scenario"].leaks == ["en"]
     assert set(by_style["direct"].questions) == {"en", "hi", "gu"}
 
@@ -92,3 +92,15 @@ def test_draft_all_pairs_languages_flags_leaks_and_records_failures(
     again: list[DraftItem] = load_drafts(path)
     assert [d.item_id for d in again] == [d.item_id for d in drafts]
     assert all(d.status == "draft" for d in again)
+
+
+def test_prompt_uses_the_question_name_not_the_registry_label(root: Path) -> None:
+    from policydrift.bench.drafts import build_prompt
+
+    registry = load_registry(root / "data" / "schemes.yaml")
+    rural = registry["rural-employment-guarantee"]
+    assert rural.question_name and "never call it MGNREGA" in rural.question_name
+    tax = registry["income-tax-new-regime"]
+    assert tax.question_name and "new tax regime" in tax.question_name
+    fact = _fact(root, "rural-guaranteed-days")
+    assert "VB-G RAM G" in build_prompt(fact, rural.question_name, "direct")

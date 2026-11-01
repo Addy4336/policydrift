@@ -6,6 +6,7 @@
 
 income-tax-new-regime:
   name: Income tax, new regime (individuals)
+  question_name: "income tax for individuals under the new tax regime (not the old regime)"
   versions:
     - id: fy2023-24
       effective_from: 2023-04-01
@@ -34,9 +35,13 @@ pmuy-subsidy:
       notes: 5 Oct 2023 per PIB material; confirm against the MoPNG order.
     - id: v3
       effective_from: 2025-04-01
-      effective_to: null
+      effective_to: 2026-03-31
       announced_on: 2025-08-08
-      notes: Approved for FY 2025-26. A June 2026 release mentions 4 refills; held in reserve until a decision document is found.
+      notes: Approved for FY 2025-26 (up to 9 refills).
+    - id: v4
+      effective_from: 2026-04-01
+      effective_to: null
+      notes: UNCONFIRMED BOUNDARY. Start of FY 2026-27, as reported by the press (cut from 9 to 4 refills). The only official document found is PRID 2269944 (MoPNG, 7 Jun 2026), which says the Rs 300 applies to the first four refills each year but calls the support "unchanged". No Cabinet or MoPNG decision found.
 
 pm-svanidhi:
   name: PM SVANidhi street-vendor loans
@@ -52,6 +57,7 @@ pm-svanidhi:
 
 rural-employment-guarantee:
   name: Rural employment guarantee (MGNREGA, then VB-G RAM G)
+  question_name: "VB-G RAM G, the rural employment guarantee law that replaced MGNREGA (never call it MGNREGA)"
   versions:
     - id: v1
       effective_from: 2006-02-02
@@ -146,6 +152,7 @@ gst:
 
 capital-gains:
   name: Capital gains tax rates and holding periods (Income-tax Act)
+  question_name: "capital gains tax under the Income-tax Act"
   versions:
     - id: v1
       effective_from: 2018-04-01
@@ -160,6 +167,7 @@ capital-gains:
 
 kcc-miss:
   name: Kisan Credit Card and Modified Interest Subvention Scheme
+  question_name: "the Kisan Credit Card (KCC) scheme with the Modified Interest Subvention Scheme"
   versions:
     - id: v1
       effective_from: null

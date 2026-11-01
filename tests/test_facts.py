@@ -61,10 +61,12 @@ def _fact(**changes: object) -> Fact:
             ],
         ),
         current=FactValue(
-            version="v3",
+            version="v4",
             value=300,
             evidence=[
-                Evidence(chunk_id="pmuy-subsidy:v3:en:2154117:000", quote="Rs.300 per 14.2 kg")
+                Evidence(
+                    chunk_id="pmuy-subsidy:v4:en:2269944:002", quote="transfer of ₹300 a cylinder"
+                )
             ],
         ),
         changed_in="v2",

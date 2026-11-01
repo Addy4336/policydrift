@@ -224,9 +224,13 @@ def bench_draft(
     root: RootOption = Path("."),
     model: Annotated[str, typer.Option(help="Key in configs/models.yaml.")] = "groq-gpt-oss",
     limit: Annotated[int, typer.Option(help="Only the first N facts (0 = all).")] = 0,
+    fact: Annotated[list[str] | None, typer.Option(help="Only this fact id (repeatable).")] = None,
 ) -> None:
-    """Draft en/hi/gu question wording for every fact x style (unverified; see milestone 2d)."""
-    from policydrift.bench.drafts import draft_all, write_drafts
+    """Draft en/hi/gu question wording for every fact x style (unverified; see milestone 2d).
+
+    With --fact, only those facts are redrafted and replace their earlier drafts in the file.
+    """
+    from policydrift.bench.drafts import draft_all, load_drafts, write_drafts
     from policydrift.bench.facts import load_facts
     from policydrift.llm import client_from_root
     from policydrift.llm.client import load_models
@@ -237,10 +241,19 @@ def bench_draft(
     facts = load_facts(root / "data" / "facts.yaml")
     if limit:
         facts = facts[:limit]
+    out = root / "data" / "benchmark" / "drafts" / "drafts.jsonl"
+    if fact:
+        unknown = set(fact) - {f.id for f in facts}
+        if unknown:
+            raise typer.BadParameter(f"unknown fact ids: {sorted(unknown)}")
+        facts = [f for f in facts if f.id in set(fact)]
     registry = load_registry(root / "data" / "schemes.yaml")
     client = client_from_root(root)
     drafts, failed = draft_all(client, facts, registry, spec["provider"], spec["model"])
-    out = root / "data" / "benchmark" / "drafts" / "drafts.jsonl"
+    if fact and out.is_file():
+        redrafted = {d.item_id for d in drafts}
+        kept = [d for d in load_drafts(out) if d.item_id not in redrafted]
+        drafts = [*kept, *drafts]
     write_drafts(drafts, out)
     leaky = [d.item_id for d in drafts if d.leaks]
     typer.echo(
@@ -254,7 +267,12 @@ def bench_draft(
 
 
 @bench_app.command("export")
-def bench_export(root: RootOption = Path(".")) -> None:
+def bench_export(
+    root: RootOption = Path("."),
+    fact: Annotated[list[str] | None, typer.Option(help="Only this fact id (repeatable).")] = None,
+    style: Annotated[list[str] | None, typer.Option(help="Only this style (repeatable).")] = None,
+    name: Annotated[str, typer.Option(help="Sheet file name.")] = "review_sheet.csv",
+) -> None:
     """Write the review spreadsheet for human verification (milestone 2d)."""
     from policydrift.bench.drafts import load_drafts
     from policydrift.bench.facts import load_facts
@@ -262,9 +280,13 @@ def bench_export(root: RootOption = Path(".")) -> None:
 
     bench = root / "data" / "benchmark"
     drafts = load_drafts(bench / "drafts" / "drafts.jsonl")
+    if fact:
+        drafts = [d for d in drafts if d.fact_id in set(fact)]
+    if style:
+        drafts = [d for d in drafts if d.style in set(style)]
     facts = load_facts(root / "data" / "facts.yaml")
     registry = load_registry(root / "data" / "schemes.yaml")
-    out = bench / "verification" / "review_sheet.csv"
+    out = bench / "verification" / name
     export_review_sheet(drafts, facts, registry, out)
     typer.echo(f"{len(drafts)} rows -> {out} (open in Excel; save as CSV UTF-8 when done)")
 
@@ -277,14 +299,17 @@ def bench_import(
     """Read a reviewed sheet into data/benchmark/verification/verified.jsonl."""
     from policydrift.bench.drafts import load_drafts
     from policydrift.bench.facts import load_facts
-    from policydrift.bench.verify import import_review_sheet, write_verified
+    from policydrift.bench.verify import import_review_sheet, load_verified, write_verified
 
     bench = root / "data" / "benchmark"
     drafts = load_drafts(bench / "drafts" / "drafts.jsonl")
     facts = load_facts(root / "data" / "facts.yaml")
     items, report = import_review_sheet(sheet, drafts, facts)
     out = bench / "verification" / "verified.jsonl"
-    write_verified(items, out)
+    # Merge by item id so a partial sheet never discards earlier reviews.
+    earlier = {i.item_id: i for i in load_verified(out)} if out.is_file() else {}
+    earlier.update({i.item_id: i for i in items})
+    write_verified(list(earlier.values()), out)
     typer.echo(
         f"{report.verified} verified, {report.rejected} rejected, "
         f"{len(report.pending)} still pending, {len(report.problems)} problems -> {out}"

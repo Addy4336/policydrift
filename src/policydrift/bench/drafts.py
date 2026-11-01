@@ -34,6 +34,9 @@ STYLES: dict[str, str] = {
     ),
 }
 
+# The first review found the helpline style redundant (29 of 30 rejected), so it is opt-in.
+DEFAULT_STYLES = ("direct", "scenario")
+
 SYSTEM = (
     "You write evaluation questions about Indian government rules, in English, Hindi and "
     "Gujarati. Rules:\n"
@@ -42,6 +45,9 @@ SYSTEM = (
     "new, revised, changed, updated or raised, and never mention a year of change.\n"
     "- Never state any figure that could be the answer. Do not put amounts or percentages "
     "from the rule in the question.\n"
+    "- In Hindi and Gujarati keep sentences grammatical: in Gujarati a first-person past "
+    'tense uses "મેં", and "લોન" is feminine. Translate every term, including the name '
+    "of an Act or a kind of asset, instead of leaving English words in mid-sentence.\n"
     "- Use natural, standard Hindi (Devanagari) and Gujarati (Gujarati script). Keep scheme "
     "names and legal terms the way officials write them. Write numerals as ASCII digits.\n"
     'Reply with JSON only: {"en": "...", "hi": "...", "gu": "..."}'
@@ -141,13 +147,14 @@ def draft_all(
     registry: Registry,
     provider: Literal["gemini", "groq"],
     model: str,
-    styles: Sequence[str] = tuple(STYLES),
+    styles: Sequence[str] = DEFAULT_STYLES,
 ) -> tuple[list[DraftItem], list[str]]:
     """Draft every fact x style. Returns (drafts, ids that failed)."""
     drafts: list[DraftItem] = []
     failed: list[str] = []
     for fact in facts:
-        name = registry[fact.scheme].name
+        scheme = registry[fact.scheme]
+        name = scheme.question_name or scheme.name
         for style in styles:
             item = draft_item(client, fact, name, style, provider, model)
             if item is None:
