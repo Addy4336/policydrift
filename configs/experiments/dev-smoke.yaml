@@ -1,0 +1,13 @@
+# Cheap end-to-end check on the dev split: 4 items, all conditions, one small model.
+name: dev-smoke
+split: dev
+models: [groq-gpt-oss-20b]
+languages: [en, hi, gu]
+conditions: [R0, R1, R2, R3, R4, X]
+item_limit: 4
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

@@ -121,20 +121,9 @@ def db_migrate(root: RootOption = Path(".")) -> None:
 
 
 def _local_retriever(root: Path):  # type: ignore[no-untyped-def]
-    from policydrift.ingest.registry import load_registry
-    from policydrift.retrieval.embed import (
-        DEFAULT_MODEL,
-        MODELS,
-        EmbeddingCache,
-        SentenceTransformerEmbedder,
-    )
-    from policydrift.retrieval.search import Retriever, load_chunks
+    from policydrift.retrieval.factory import local_retriever
 
-    model = MODELS[DEFAULT_MODEL]
-    chunks = load_chunks(root / "data" / "processed" / "chunks.jsonl")
-    registry = load_registry(root / "data" / "schemes.yaml")
-    cache = EmbeddingCache(root / ".cache" / "embeddings", model)
-    return Retriever(chunks, SentenceTransformerEmbedder(model), cache, registry)
+    return local_retriever(root)
 
 
 @db_app.command("load")
@@ -180,10 +169,6 @@ def db_check(root: RootOption = Path("."), k: int = 5) -> None:
     typer.echo(f"{len(probes) - mismatches}/{len(probes)} probes return identical top-{k}.")
     if mismatches:
         raise typer.Exit(code=1)
-
-
-if __name__ == "__main__":
-    app()
 
 
 @llm_app.command("check")
@@ -382,3 +367,122 @@ def bench_show(
         f"{split}: {len(items)} items, {len({i.fact_id for i in items})} facts, "
         f"{confirmatory} confirmatory"
     )
+
+
+@app.command("run")
+def run_cmd(
+    config: Annotated[
+        Path, typer.Argument(help="Experiment YAML, e.g. configs/experiments/x.yaml.")
+    ],
+    root: RootOption = Path("."),
+    final: Annotated[
+        bool, typer.Option("--final", help="Required to run on the frozen test split.")
+    ] = False,
+    dry_run: Annotated[bool, typer.Option(help="Count planned and uncached calls only.")] = False,
+) -> None:
+    """Run one experiment and write runs/<run_id>/ (config, git commit, raw answers)."""
+    from policydrift.bench.split import FrozenSplitError, TestSplitLocked
+    from policydrift.experiments.config import load_config
+    from policydrift.experiments.runner import run_experiment
+    from policydrift.llm import client_from_root
+
+    cfg = load_config(config)
+    retriever = _local_retriever(root) if any(c != "R0" for c in cfg.conditions) else None
+    client = client_from_root(root)
+
+    def show(n: int, total: int) -> None:
+        if n % 25 == 0 or n == total:
+            typer.echo(f"  {n}/{total}")
+
+    try:
+        summary = run_experiment(
+            cfg, root, client, retriever, final=final, dry_run=dry_run, progress=show
+        )
+    except (TestSplitLocked, FrozenSplitError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    if dry_run:
+        typer.echo(
+            f"{summary['planned_calls']} calls planned, {summary['uncached_calls']} not yet cached."
+        )
+        return
+    c = summary["counts"]
+    typer.echo(
+        f"{summary['run_id']}: {c['ok']} answered ({c['cached']} from cache), "
+        f"{c['missing']} missing -> runs/{summary['run_id']}/"
+    )
+
+
+@app.command("score")
+def score_cmd(
+    run_dir: Annotated[Path, typer.Argument(help="A runs/<run_id> directory.")],
+    root: RootOption = Path("."),
+    judge: Annotated[bool, typer.Option(help="Send undecided answers to the LLM judge.")] = True,
+) -> None:
+    """Score a run: deterministic matcher, then the judge for what it cannot decide."""
+    import json
+
+    from policydrift.bench.split import load_items
+    from policydrift.llm import client_from_root
+    from policydrift.llm.client import load_models
+    from policydrift.scoring.pipeline import load_answers, score_run, summarise
+
+    meta = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+    cfg = meta["config"]
+    items = {i.item_id: i for i in load_items(root, cfg["split"], final=meta["final"])}
+    judge_spec = None
+    if judge:
+        spec = load_models(root / "configs" / "models.yaml")["models"][cfg["judge_model"]]  # type: ignore[index]
+        judge_spec = (client_from_root(root), spec["provider"], spec["model"])
+    scores = score_run(load_answers(run_dir), items, judge_spec)
+    (run_dir / "scores.jsonl").write_text(
+        "".join(s.model_dump_json() + "\n" for s in scores), encoding="utf-8", newline="\n"
+    )
+    rows = summarise(scores)
+    (run_dir / "summary.json").write_text(
+        json.dumps(rows, indent=1) + "\n", encoding="utf-8", newline="\n"
+    )
+    typer.echo("model              cond lang    n  cur  old  oth  ref  unres  miss  outdated")
+    for r in rows:
+        rate = "-" if r["outdated_rate"] is None else f"{r['outdated_rate']:.2f}"
+        typer.echo(
+            f"{r['model']:18s} {r['condition']:4s} {r['language']:3s} {r['n']:4d} "
+            f"{r['current']:4d} {r['outdated']:4d} {r['other']:4d} {r['refusal']:4d} "
+            f"{r['unresolved']:6d} {r['missing']:5d}  {rate}"
+        )
+
+
+@app.command("label-sheet")
+def label_sheet_cmd(
+    run_dir: Annotated[Path, typer.Argument(help="A scored runs/<run_id> directory.")],
+    root: RootOption = Path("."),
+    size: Annotated[int, typer.Option(help="Number of answers to label.")] = 45,
+) -> None:
+    """Write the human labelling sheet (automatic labels hidden) for judge validation."""
+    import json
+
+    from policydrift.bench.split import load_items
+    from policydrift.scoring.agreement import export_label_sheet
+    from policydrift.scoring.pipeline import ScoreRecord, load_answers
+
+    meta = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+    items = {i.item_id: i for i in load_items(root, meta["config"]["split"], final=meta["final"])}
+    with (run_dir / "scores.jsonl").open(encoding="utf-8") as f:
+        scores = [ScoreRecord.model_validate_json(line) for line in f if line.strip()]
+    out = root / "data" / "benchmark" / "judge_validation" / f"{run_dir.name}.csv"
+    n = export_label_sheet(scores, load_answers(run_dir), items, out, size=size)
+    typer.echo(f"{n} answers -> {out}\nFill human_label with: current, outdated, other or refusal.")
+
+
+@app.command("label-agree")
+def label_agree_cmd(sheet: Annotated[Path, typer.Argument(help="The labelled CSV.")]) -> None:
+    """Cohen's kappa of the automatic labels against the human labels."""
+    import json
+
+    from policydrift.scoring.agreement import agreement_report
+
+    typer.echo(json.dumps(agreement_report(sheet), indent=2, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    app()

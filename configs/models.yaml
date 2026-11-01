@@ -15,3 +15,9 @@ models:
   gemini-flash-lite:
     provider: gemini
     model: gemini-3.1-flash-lite
+  groq-gpt-oss-20b:
+    provider: groq
+    model: openai/gpt-oss-20b
+  groq-qwen:
+    provider: groq
+    model: qwen/qwen3.8-27b

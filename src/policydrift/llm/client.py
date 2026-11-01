@@ -40,6 +40,9 @@ class LLMClient:
         self._limiters = {p: RateLimiter(n, clock=clock, sleep=sleep) for p, n in rpm.items()}
         self.calls_made = 0  # uncached provider calls, for budgeting
 
+    def is_cached(self, request: LLMRequest) -> bool:
+        return self._cache.get(request) is not None
+
     def complete(self, request: LLMRequest) -> LLMResponse:
         hit = self._cache.get(request)
         if hit is not None:

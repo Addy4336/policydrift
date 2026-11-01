@@ -1,0 +1,12 @@
+# Dev-split baseline over every condition and three models. Development only: no mitigations.
+name: dev-baseline
+split: dev
+models: [groq-gpt-oss-20b, groq-qwen, gemini-flash-lite]
+languages: [en, hi, gu]
+conditions: [R0, R1, R2, R3, R4, X]
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss
