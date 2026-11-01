@@ -1,6 +1,6 @@
 # Data sources
 
-- **Status:** milestone 1b (2026-10-28). The 61 PIB releases listed below (46 in the first nine schemes, 14 in the three added on 2026-10-31) are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
+- **Status:** milestone 1b (2026-10-28). The 65 PIB releases listed below (46 in the first nine schemes, 14 in the three added on 2026-10-31) are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
 - **Not yet captured:** the VB-G RAM G backgrounder and the primary instruments (see "Remaining gaps" at the end).
 - **Rule:** official government publications only (CLAUDE.md, hard rule 3).
 
@@ -173,6 +173,20 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 - **Open question:** the v1/v2 boundary is a placeholder. Find the primary instrument (RBI/DA&FW circular) before any as-of item uses dates between 28 May 2025 and 11 Mar 2026.
 - The Hindi (2238178) and Gujarati (2238058) versions of the backgrounder are not captured.
 - Retrieval times for these 14 captures are recorded as midnight UTC of the capture date; the time of day was not kept.
+
+### 13. Minimum Support Prices: kharif and rabi crops
+
+| Version | Announced | Facts | Source |
+|---|---|---|---|
+| Kharif V1 | 2025-05-28 (season 2025-26) | Paddy (common) ₹2,369; tur ₹8,000; cotton (medium staple) ₹7,710; groundnut ₹7,263 per quintal | CCEA release: 2131983 (en only) |
+| Kharif V2 | 2026-05-13 (season 2026-27) | Paddy (common) ₹2,441; tur ₹8,450; cotton ₹8,267; groundnut ₹7,517 | CCEA release: 2260618 (en only) |
+| Rabi V1 | 2025-10-01 (season 2026-27) | Wheat ₹2,585; gram ₹5,875; rapeseed and mustard ₹6,200; lentil ₹7,000 | CCEA release: 2173566 (en only) |
+| Rabi V2 | 2026-09-30 (season 2027-28) | Wheat ₹2,610; gram ₹5,958; rapeseed and mustard ₹6,613; lentil ₹7,390 | CCEA release: 2316941 (en only) |
+
+- A version runs from the Cabinet decision to the next decision; the price is for the coming marketing season.
+- **Season ambiguity:** "current MSP" can mean the season now running or the latest announced. The fact table uses the latest announced; reviewers should check question wording.
+- Hindi and Gujarati versions are not captured, so these facts reach hi/gu questions only through the cross-lingual condition.
+- **Rejected candidate: Dearness Allowance.** The Jan 2026 and Jul 2026 Cabinet releases (2253245, 2329485) state only the increase over the existing rate ("2% over 58%", "3% over 60%"), never the new total, so the gold value would be derived rather than quoted.
 
 ## Reserve and rejected candidates
 

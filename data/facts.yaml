@@ -536,3 +536,137 @@
       - {chunk_id: "kcc-miss:v2:en:2238004:009", quote: "increased from Rs 1.6 lakh to Rs 2 lakh per borrower"}
   changed_in: v2
   caveat: Stated as effective 1 January 2025, earlier than the v2 start date in the registry.
+
+# --- Minimum Support Prices (kharif and rabi) -------------------------------------------
+# Each version is one Cabinet decision for a marketing season. Old values are contemporary:
+# the previous season's release states them. Hindi/Gujarati sources are not captured, so
+# these facts reach hi/gu questions only through the cross-lingual condition.
+# The kharif and rabi facts of one release share a table, so analyse them clustered by scheme.
+- id: msp-kharif-paddy-common
+  scheme: msp-kharif
+  attribute: Minimum Support Price of common paddy (rupees per quintal) for the latest kharif marketing season
+  kind: inr
+  old:
+    version: v1
+    value: 2369
+    evidence:
+      - {chunk_id: "msp-kharif:v1:en:2131983:001", quote: "Common\n\n2369\n\n1579"}
+  current:
+    version: v2
+    value: 2441
+    evidence:
+      - {chunk_id: "msp-kharif:v2:en:2260618:001", quote: "Common\n\n2441\n\n1627"}
+  changed_in: v2
+
+- id: msp-kharif-tur
+  scheme: msp-kharif
+  attribute: Minimum Support Price of tur (arhar) (rupees per quintal) for the latest kharif marketing season
+  kind: inr
+  old:
+    version: v1
+    value: 8000
+    evidence:
+      - {chunk_id: "msp-kharif:v1:en:2131983:001", quote: "Tur /Arhar\n\n8000\n\n5038"}
+  current:
+    version: v2
+    value: 8450
+    evidence:
+      - {chunk_id: "msp-kharif:v2:en:2260618:001", quote: "Tur /Arhar\n\n8450\n\n5496"}
+  changed_in: v2
+
+- id: msp-kharif-cotton-medium
+  scheme: msp-kharif
+  attribute: Minimum Support Price of medium staple cotton (rupees per quintal) for the latest kharif marketing season
+  kind: inr
+  old:
+    version: v1
+    value: 7710
+    evidence:
+      - {chunk_id: "msp-kharif:v1:en:2131983:002", quote: "(Medium Staple)\n\n7710\n\n5140"}
+  current:
+    version: v2
+    value: 8267
+    evidence:
+      - {chunk_id: "msp-kharif:v2:en:2260618:002", quote: "(Medium Staple)\n\n8267\n\n5511"}
+  changed_in: v2
+
+- id: msp-kharif-groundnut
+  scheme: msp-kharif
+  attribute: Minimum Support Price of groundnut (rupees per quintal) for the latest kharif marketing season
+  kind: inr
+  old:
+    version: v1
+    value: 7263
+    evidence:
+      - {chunk_id: "msp-kharif:v1:en:2131983:001", quote: "Groundnut\n\n7263\n\n4842"}
+  current:
+    version: v2
+    value: 7517
+    evidence:
+      - {chunk_id: "msp-kharif:v2:en:2260618:001", quote: "Groundnut\n\n7517\n\n5011"}
+  changed_in: v2
+
+- id: msp-rabi-wheat
+  scheme: msp-rabi
+  attribute: Minimum Support Price of wheat (rupees per quintal) for the latest rabi marketing season
+  kind: inr
+  old:
+    version: v1
+    value: 2585
+    evidence:
+      - {chunk_id: "msp-rabi:v1:en:2173566:001", quote: "Wheat\n\n2585\n\n1239"}
+  current:
+    version: v2
+    value: 2610
+    evidence:
+      - {chunk_id: "msp-rabi:v2:en:2316941:001", quote: "Wheat\n\n2610\n\n1264"}
+  changed_in: v2
+
+- id: msp-rabi-gram
+  scheme: msp-rabi
+  attribute: Minimum Support Price of gram (rupees per quintal) for the latest rabi marketing season
+  kind: inr
+  old:
+    version: v1
+    value: 5875
+    evidence:
+      - {chunk_id: "msp-rabi:v1:en:2173566:001", quote: "Gram\n\n5875\n\n3699"}
+  current:
+    version: v2
+    value: 5958
+    evidence:
+      - {chunk_id: "msp-rabi:v2:en:2316941:001", quote: "Gram\n\n5958\n\n3751"}
+  changed_in: v2
+
+- id: msp-rabi-mustard
+  scheme: msp-rabi
+  attribute: Minimum Support Price of rapeseed and mustard (rupees per quintal) for the latest rabi marketing season
+  kind: inr
+  old:
+    version: v1
+    value: 6200
+    evidence:
+      - {chunk_id: "msp-rabi:v1:en:2173566:001", quote: "Rapeseed & Mustard\n\n6200\n\n3210"}
+  current:
+    version: v2
+    value: 6613
+    evidence:
+      - {chunk_id: "msp-rabi:v2:en:2316941:001", quote: "Rapeseed & Mustard\n\n6613\n\n3367"}
+  changed_in: v2
+
+- id: msp-rabi-lentil
+  scheme: msp-rabi
+  attribute: Minimum Support Price of lentil (masur) (rupees per quintal) for the latest rabi marketing season
+  kind: inr
+  old:
+    version: v1
+    value: 7000
+    evidence:
+      - {chunk_id: "msp-rabi:v1:en:2173566:001", quote: "Lentil (Masur)\n\n7000\n\n3705"}
+  current:
+    version: v2
+    value: 7390
+    evidence:
+      - {chunk_id: "msp-rabi:v2:en:2316941:001", quote: "Lentil (Masur)\n\n7390\n\n3854"}
+  changed_in: v2
+

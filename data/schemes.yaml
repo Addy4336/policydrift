@@ -178,3 +178,33 @@ kcc-miss:
       effective_to: null
       announced_on: 2025-02-01  # Union Budget 2025-26; a Cabinet decision of 19 Mar 2025 is reported secondhand
       notes: PLACEHOLDER BOUNDARY. The true start date is unknown (between 28 May 2025 and 11 Mar 2026); do not build as-of items for dates in that window. PRID 2238004 says the limits were enhanced "in 2025-26"; the collateral-free limit is stated as effective 1 Jan 2025. A primary instrument has not been checked.
+
+msp-kharif:
+  name: Minimum Support Prices for kharif crops
+  question_name: "the Minimum Support Price (MSP) for kharif crops"
+  versions:
+    - id: v1
+      effective_from: 2025-05-28
+      effective_to: 2026-05-12
+      announced_on: 2025-05-28
+      notes: Kharif marketing season 2025-26. Each version runs from the Cabinet decision to the next one; the MSP applies to the season's crop.
+    - id: v2
+      effective_from: 2026-05-13
+      effective_to: null
+      announced_on: 2026-05-13
+      notes: Kharif marketing season 2026-27 (PRID 2260618).
+
+msp-rabi:
+  name: Minimum Support Prices for rabi crops
+  question_name: "the Minimum Support Price (MSP) for rabi crops"
+  versions:
+    - id: v1
+      effective_from: 2025-10-01
+      effective_to: 2026-09-29
+      announced_on: 2025-10-01
+      notes: Rabi marketing season 2026-27.
+    - id: v2
+      effective_from: 2026-09-30
+      effective_to: null
+      announced_on: 2026-09-30
+      notes: Rabi marketing season 2027-28 (PRID 2316941), approved after the cutoff of every candidate model.
