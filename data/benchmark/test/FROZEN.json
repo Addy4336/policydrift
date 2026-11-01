@@ -1,0 +1,32 @@
+{
+  "based_on_commit": "de09501ac71ac5184fedb835fe14f585e1a541b2",
+  "dev_facts": 14,
+  "dev_items": 28,
+  "dev_schemes": [
+    "capital-gains",
+    "pm-mudra",
+    "pm-svanidhi",
+    "pmay-urban",
+    "pmuy-subsidy",
+    "rural-employment-guarantee"
+  ],
+  "frozen_on": "2026-11-01T10:25:14+00:00",
+  "inputs_sha256": {
+    "chunks.jsonl": "0c113a8ad2929416644d20fbe0f0fc49df06e89bc2dff2f201f7560daaa7ecc9",
+    "facts.yaml": "577e1e732f83f595148d4835d2baa23bfd85a42023c909dd229ad3eb6580269c",
+    "schemes.yaml": "cea49b0ac61b78dc7075e6b723bd439b12521ca4ae80da4573f3bef77b5e29f9",
+    "verified.jsonl": "3dc48d7250aa7a4c810acc7500f400a3ac19b765516cdb9a2eb869557a9c0a6a"
+  },
+  "test_facts": 28,
+  "test_items": 57,
+  "test_items_sha256": "9f708605dc265c6a1edf14b866d0a92815eb31284bccc20ae5e86be2196dc526",
+  "test_schemes": [
+    "gst",
+    "income-tax-new-regime",
+    "kcc-miss",
+    "msp-kharif",
+    "msp-rabi",
+    "nmmss",
+    "scss-mis"
+  ]
+}

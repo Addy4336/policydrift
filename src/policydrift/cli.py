@@ -318,3 +318,67 @@ def bench_import(
         typer.echo(f"  problem: {problem}", err=True)
     if report.problems:
         raise typer.Exit(code=1)
+
+
+@bench_app.command("freeze")
+def bench_freeze(root: RootOption = Path(".")) -> None:
+    """Split the verified items by scheme into dev and test, write them, and checksum the test set.
+
+    Refuses to run if the test split already exists: later changes go in the deviation log.
+    """
+    from policydrift.bench.facts import load_facts
+    from policydrift.bench.split import (
+        SEED,
+        FrozenSplitError,
+        assign_schemes,
+        build_items,
+        freeze,
+        load_flags,
+    )
+    from policydrift.bench.verify import load_verified
+    from policydrift.retrieval.search import load_chunks
+
+    bench = root / "data" / "benchmark"
+    facts = load_facts(root / "data" / "facts.yaml")
+    registry = load_registry(root / "data" / "schemes.yaml")
+    chunks = load_chunks(root / "data" / "processed" / "chunks.jsonl")
+    verified = load_verified(bench / "verification" / "verified.jsonl")
+    split_map = assign_schemes(facts, SEED)
+    items = build_items(
+        verified, facts, registry, chunks, split_map, load_flags(bench / "flags.yaml")
+    )
+    try:
+        record = freeze(root, items, split_map, SEED)
+    except FrozenSplitError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(
+        f"dev: {record['dev_items']} items, {record['dev_facts']} facts {record['dev_schemes']}\n"
+        f"test: {record['test_items']} items, {record['test_facts']} facts, "
+        f"sha256 {record['test_items_sha256'][:16]}..."
+    )
+
+
+@bench_app.command("show")
+def bench_show(
+    split: Annotated[str, typer.Option(help="dev or test.")] = "dev",
+    final: Annotated[
+        bool, typer.Option("--final", help="Required to read the test split.")
+    ] = False,
+    root: RootOption = Path("."),
+) -> None:
+    """Print item counts for a split. The test split needs --final."""
+    from policydrift.bench.split import FrozenSplitError, TestSplitLocked, load_items
+
+    if split not in {"dev", "test"}:
+        raise typer.BadParameter("split must be dev or test")
+    try:
+        items = load_items(root, split, final=final)  # type: ignore[arg-type]
+    except (TestSplitLocked, FrozenSplitError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    confirmatory = sum(i.confirmatory for i in items)
+    typer.echo(
+        f"{split}: {len(items)} items, {len({i.fact_id for i in items})} facts, "
+        f"{confirmatory} confirmatory"
+    )

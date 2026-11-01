@@ -107,6 +107,22 @@ H1 is tested separately in R2 and R3, on outdated rates pooled across models and
 | Commit hash | _not yet_ |
 | External registration (optional, e.g. OSF / AsPredicted) | _not yet_ |
 
+### Benchmark freeze (milestone 2e)
+
+The test split was written and checksummed on 2026-11-01, before any model was run on any benchmark item.
+
+| Field | Value |
+|---|---|
+| Split unit | scheme (all facts of a scheme go to one side), seed 20261101, see `data/benchmark/split.json` |
+| Test | 57 items, 28 facts, schemes: gst, income-tax-new-regime, kcc-miss, msp-kharif, msp-rabi, nmmss, scss-mis |
+| Dev | 28 items, 14 facts, schemes: capital-gains, pm-mudra, pm-svanidhi, pmay-urban, pmuy-subsidy, rural-employment-guarantee |
+| Test file SHA-256 | `9f708605dc265c6a1edf14b866d0a92815eb31284bccc20ae5e86be2196dc526` (`data/benchmark/test/items.jsonl`; record in `FROZEN.json`) |
+| Built from commit | `de09501ac71ac5184fedb835fe14f585e1a541b2` |
+| Confirmatory test items | 56 of 57. Excluded from confirmatory analysis and reported separately: `tds-rent-threshold/scenario` (reviewer flag: section 194-IB vs 194-I). The unconfirmed PMUY refills fact fell in the dev split. |
+| Known limits at freeze | One reviewer for all three languages; Gujarati has no second check; old values for several facts are only restated (GST, capital gains, income-tax thresholds, KCC collateral-free limit, MIS limits); kharif MSP items expire about May-Jun 2027; hi/gu source documents are missing for the MSP, tds and KCC-v2 facts, so those reach hi/gu questions only through the cross-lingual condition. |
+
+The "items per language" OPEN item above is settled as: all verified test items. The power check on dev discordance rates is still open.
+
 ## Deviation log
 
 Every change after the freeze is appended here with date, what changed, why, and whether it was made before or after seeing test-split results.

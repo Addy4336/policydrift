@@ -1,0 +1,18 @@
+# Flags carried into the frozen benchmark items. `confirmatory: false` means the item is
+# reported separately and never used to support H1-H3.
+facts:
+  pmuy-refills-per-year:
+    confirmatory: false
+    reason: "Unconfirmed change: the 9-to-4 refill cut rests on press reports; the only official release (PRID 2269944) also calls the support unchanged. No decision document found."
+  msp-kharif-paddy-common:
+    reason: "Time-limited: 'current' is the 2026-27 kharif MSP; the gold changes when 2027-28 kharif MSPs are announced (about May-Jun 2027)."
+  msp-kharif-tur:
+    reason: "Time-limited: 'current' is the 2026-27 kharif MSP; the gold changes when 2027-28 kharif MSPs are announced (about May-Jun 2027)."
+  msp-kharif-cotton-medium:
+    reason: "Time-limited: 'current' is the 2026-27 kharif MSP; the gold changes when 2027-28 kharif MSPs are announced (about May-Jun 2027)."
+  msp-kharif-groundnut:
+    reason: "Time-limited: 'current' is the 2026-27 kharif MSP; the gold changes when 2027-28 kharif MSPs are announced (about May-Jun 2027)."
+items:
+  tds-rent-threshold/scenario:
+    confirmatory: false
+    reason: "Reviewer flag: an individual tenant is usually under section 194-IB (monthly test), while the gold is the section 194-I annual threshold, so 'what figure applies to me' may not match the gold."

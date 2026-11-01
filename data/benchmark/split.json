@@ -1,0 +1,19 @@
+{
+  "assignment": {
+    "capital-gains": "dev",
+    "gst": "test",
+    "income-tax-new-regime": "test",
+    "kcc-miss": "test",
+    "msp-kharif": "test",
+    "msp-rabi": "test",
+    "nmmss": "test",
+    "pm-mudra": "dev",
+    "pm-svanidhi": "dev",
+    "pmay-urban": "dev",
+    "pmuy-subsidy": "dev",
+    "rural-employment-guarantee": "dev",
+    "scss-mis": "test"
+  },
+  "seed": 20261101,
+  "unit": "scheme"
+}
