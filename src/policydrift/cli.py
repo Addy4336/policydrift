@@ -251,3 +251,45 @@ def bench_draft(
         typer.echo(f"  failed: {item_id}", err=True)
     for item_id in leaky:
         typer.echo(f"  leak: {item_id}", err=True)
+
+
+@bench_app.command("export")
+def bench_export(root: RootOption = Path(".")) -> None:
+    """Write the review spreadsheet for human verification (milestone 2d)."""
+    from policydrift.bench.drafts import load_drafts
+    from policydrift.bench.facts import load_facts
+    from policydrift.bench.verify import export_review_sheet
+
+    bench = root / "data" / "benchmark"
+    drafts = load_drafts(bench / "drafts" / "drafts.jsonl")
+    facts = load_facts(root / "data" / "facts.yaml")
+    registry = load_registry(root / "data" / "schemes.yaml")
+    out = bench / "verification" / "review_sheet.csv"
+    export_review_sheet(drafts, facts, registry, out)
+    typer.echo(f"{len(drafts)} rows -> {out} (open in Excel; save as CSV UTF-8 when done)")
+
+
+@bench_app.command("import")
+def bench_import(
+    sheet: Annotated[Path, typer.Argument(help="The reviewed CSV.")],
+    root: RootOption = Path("."),
+) -> None:
+    """Read a reviewed sheet into data/benchmark/verification/verified.jsonl."""
+    from policydrift.bench.drafts import load_drafts
+    from policydrift.bench.facts import load_facts
+    from policydrift.bench.verify import import_review_sheet, write_verified
+
+    bench = root / "data" / "benchmark"
+    drafts = load_drafts(bench / "drafts" / "drafts.jsonl")
+    facts = load_facts(root / "data" / "facts.yaml")
+    items, report = import_review_sheet(sheet, drafts, facts)
+    out = bench / "verification" / "verified.jsonl"
+    write_verified(items, out)
+    typer.echo(
+        f"{report.verified} verified, {report.rejected} rejected, "
+        f"{len(report.pending)} still pending, {len(report.problems)} problems -> {out}"
+    )
+    for problem in report.problems:
+        typer.echo(f"  problem: {problem}", err=True)
+    if report.problems:
+        raise typer.Exit(code=1)
