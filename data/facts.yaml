@@ -670,3 +670,78 @@
       - {chunk_id: "msp-rabi:v2:en:2316941:001", quote: "Lentil (Masur)\n\n7390\n\n3854"}
   changed_in: v2
 
+
+# --- Income tax: Budget 2025-26 procedural thresholds ----------------------------------
+# All four come from the Budget summary (PRID 2098352), which restates the old value ("from X to
+# Y"). No FY2024-25 document states them, so every old value is restated. The summary gives no
+# effective date; Finance Act 2025 (1 Apr 2025 for the TDS items) is not captured.
+- id: tds-rent-threshold
+  scheme: income-tax-new-regime
+  attribute: annual rent above which tax must be deducted at source (TDS) from rent paid (in rupees)
+  kind: inr
+  old:
+    version: fy2024-25
+    value: 240000
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098352:023", quote: "TDS threshold on rent has been increased to ₹ 6 Lakh from ₹ 2.4 Lakh per annum"}
+  current:
+    version: fy2025-26
+    value: 600000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098352:023", quote: "TDS threshold on rent has been increased to ₹ 6 Lakh from ₹ 2.4 Lakh per annum"}
+  changed_in: fy2025-26
+
+- id: tds-senior-interest-threshold
+  scheme: income-tax-new-regime
+  attribute: interest income per year of a senior citizen up to which no tax is deducted at source (in rupees)
+  kind: inr
+  old:
+    version: fy2024-25
+    value: 50000
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098352:023", quote: "from the present ₹ 50,000 to ₹ 1 Lakh"}
+  current:
+    version: fy2025-26
+    value: 100000
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098352:023", quote: "from the present ₹ 50,000 to ₹ 1 Lakh"}
+  changed_in: fy2025-26
+
+- id: updated-return-years
+  scheme: income-tax-new-regime
+  attribute: number of years after the assessment year within which an updated income tax return can be filed
+  kind: years
+  old:
+    version: fy2024-25
+    value: 2
+    quote_in_words: true
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098352:023", quote: "from the current limit of two years, to four years"}
+  current:
+    version: fy2025-26
+    value: 4
+    quote_in_words: true
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098352:023", quote: "from the current limit of two years, to four years"}
+  changed_in: fy2025-26
+
+- id: charitable-trust-registration-years
+  scheme: income-tax-new-regime
+  attribute: period in years of registration granted to small charitable trusts and institutions under the income tax law
+  kind: years
+  old:
+    version: fy2024-25
+    value: 5
+    evidence_kind: restated
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098352:024", quote: "from 5 to 10 years"}
+  current:
+    version: fy2025-26
+    value: 10
+    evidence:
+      - {chunk_id: "income-tax-new-regime:fy2025-26:en:2098352:024", quote: "from 5 to 10 years"}
+  changed_in: fy2025-26
+  caveat: The summary says "small" trusts; questions must keep that qualifier or the answer is ambiguous.

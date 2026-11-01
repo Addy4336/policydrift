@@ -1,6 +1,6 @@
 # Data sources
 
-- **Status:** milestone 1b (2026-10-28). The 65 PIB releases listed below (46 in the first nine schemes, 14 in the three added on 2026-10-31) are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
+- **Status:** milestone 1b (2026-10-28). The 66 PIB releases listed below (46 in the first nine schemes, 14 in the three added on 2026-10-31) are captured in `data/raw/`; every rule version of every scheme now has at least one document from its own period. Each file's URL, language, version, retrieval time and SHA-256 are in [`raw/manifest.jsonl`](raw/manifest.jsonl). Check them with `uv run policydrift ingest verify`.
 - **Not yet captured:** the VB-G RAM G backgrounder and the primary instruments (see "Remaining gaps" at the end).
 - **Rule:** official government publications only (CLAUDE.md, hard rule 3).
 
@@ -187,6 +187,20 @@ Values are as stated on the cited pages. The `effective_to` of each version is t
 - **Season ambiguity:** "current MSP" can mean the season now running or the latest announced. The fact table uses the latest announced; reviewers should check question wording.
 - Hindi and Gujarati versions are not captured, so these facts reach hi/gu questions only through the cross-lingual condition.
 - **Rejected candidate: Dearness Allowance.** The Jan 2026 and Jul 2026 Cabinet releases (2253245, 2329485) state only the increase over the existing rate ("2% over 58%", "3% over 60%"), never the new total, so the gold value would be derived rather than quoted.
+
+### 14. Income tax: Budget 2025-26 procedural thresholds (filed under scheme 1, version FY2025-26)
+
+| Item | Before | After | Source |
+|---|---|---|---|
+| TDS threshold on rent (per year) | ₹2.4 lakh | ₹6 lakh | Budget summary, 1 Feb 2025: 2098352 (en only) |
+| TDS threshold on senior citizens' interest | ₹50,000 | ₹1 lakh | same |
+| Time to file an updated return | 2 years | 4 years | same |
+| Registration period of small charitable trusts | 5 years | 10 years | same |
+
+- Every old value is restated: no FY2024-25 document in the store states these thresholds.
+- The summary gives no effective dates. They come from the Finance Act 2025, which is not captured; treat 1 Apr 2025 as the likely start for the TDS items, to confirm.
+- Not used as facts: the FDI limit for insurance (74 to 100 percent), because the law changed later than the Budget; customs duty cuts, because the summary gives no effective date.
+- Whether Budget 2026-27 changed these thresholds has not been checked.
 
 ## Reserve and rejected candidates
 

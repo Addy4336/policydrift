@@ -32,7 +32,7 @@ def test_shipped_facts_are_consistent_with_sources_and_registry(
 
 
 def test_numeric_schemes_have_facts_and_all_kinds_are_covered(facts: list[Fact]) -> None:
-    assert len(facts) >= 38
+    assert len(facts) >= 42
     # pmjay-senior is deliberately absent: its change (everyone aged 70+ is eligible regardless
     # of income) is categorical, and the Phase 3 scorer is built for numeric answers.
     assert {f.scheme for f in facts} == set(load_registry_ids()) - {"pmjay-senior"}
