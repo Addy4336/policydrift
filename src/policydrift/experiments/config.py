@@ -26,6 +26,9 @@ class ExperimentConfig(BaseModel):
     k_each: int = Field(default=2, ge=1)  # chunks per version for R3, R4 and X
     passage_order: PassageOrder = "counterbalanced"
     max_tokens: int = Field(default=2048, ge=64)  # reasoning models spend most of it thinking
+    # An answer that hits max_tokens with no visible text is retried once with this budget.
+    # 0 turns the retry off.
+    retry_max_tokens: int = Field(default=8192, ge=0)
     seed: int = 20261101
     item_limit: int = Field(default=0, ge=0)  # 0 = all items; otherwise the first N by item id
     only_confirmatory: bool = False

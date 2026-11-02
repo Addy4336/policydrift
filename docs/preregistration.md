@@ -89,6 +89,7 @@ H1 is tested separately in R2 and R3, on outdated rates pooled across models and
 
 ### 9. Models, decoding and seeds
 - **Model list (draft 2026-11-01; freeze before any test-split run):** `openai/gpt-oss-20b` (small, open-weight, Groq), `qwen/qwen3.8-27b` (open-weight, Groq) and `gemini-3.1-flash-lite` (small, closed, Gemini). `gemini-3.8-flash` is registered but not in the baseline because of its free-tier rate limits. The judge is `openai/gpt-oss-120b`, which is not one of the answering models. Exact model IDs and the versions each response reports are logged in `runs/<run_id>/run.json`. Free-tier availability changes, so a model that disappears before the final run is replaced and the change is logged here.
+- **Token budget (draft 2026-11-02, from dev):** answers are requested with `max_tokens` 2048. In the dev baseline 84 of 476 `gpt-oss-20b` calls (18%) returned nothing visible because hidden reasoning used the whole budget (`finish_reason=length`). Such a call is retried once with 8192 tokens (`retry_max_tokens`); the budget used is logged per answer. An answer still empty after that is `missing` and excluded, as in §10.
 - **Decoding:** temperature 0, with a fixed seed where the API supports one. Nondeterminism is estimated by re-running a 10% subsample three times and reported.
 
 ### 10. Splits, exclusions and sample size

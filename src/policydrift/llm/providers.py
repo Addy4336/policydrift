@@ -21,6 +21,7 @@ class ParsedReply:
     model_version: str | None
     input_tokens: int | None
     output_tokens: int | None
+    finish_reason: str | None = None
 
 
 class Provider(Protocol):
@@ -66,6 +67,7 @@ class GeminiProvider:
             model_version=payload.get("modelVersion"),
             input_tokens=usage.get("promptTokenCount"),
             output_tokens=usage.get("candidatesTokenCount"),
+            finish_reason=(candidates[0].get("finishReason") if candidates else None),
         )
 
 
@@ -103,6 +105,7 @@ class GroqProvider:
             model_version=payload.get("model"),
             input_tokens=usage.get("prompt_tokens"),
             output_tokens=usage.get("completion_tokens"),
+            finish_reason=(choices[0].get("finish_reason") if choices else None),
         )
 
 

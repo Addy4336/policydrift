@@ -54,6 +54,7 @@ class AnswerRecord(BaseModel):
     error: str | None
     input_tokens: int | None
     output_tokens: int | None
+    max_tokens: int  # budget of the call that produced the answer (or the last failed attempt)
     latency_s: float | None
     cached: bool | None
     created_at: str | None
@@ -159,6 +160,12 @@ def build_request(cfg: ExperimentConfig, spec: dict[str, Any], prompt: str) -> L
     )
 
 
+def _bigger_budget(cfg: ExperimentConfig, request: LLMRequest) -> LLMRequest | None:
+    if cfg.retry_max_tokens <= request.max_tokens:
+        return None
+    return request.model_copy(update={"max_tokens": cfg.retry_max_tokens})
+
+
 def run_experiment(
     cfg: ExperimentConfig,
     root: Path,
@@ -204,8 +211,10 @@ def run_experiment(
                 ctx = select_context(retriever, item, lang, condition, cfg, position)
             prompt = build_prompt(item.questions[lang], ctx.chunks, SHOW_DATES[condition])
             request = build_request(cfg, spec, prompt)
+            retry = _bigger_budget(cfg, request)
             if dry_run:
-                uncached += 0 if client.is_cached(request) else 1
+                hit = client.is_cached(request) or (retry is not None and client.is_cached(retry))
+                uncached += 0 if hit else 1
                 continue
             answer = error = None
             reply = None
@@ -214,6 +223,13 @@ def run_experiment(
                 answer = reply.text
             except LLMError as exc:
                 error = str(exc)
+                if retry is not None and "finish_reason=length" in error:
+                    request = retry
+                    try:
+                        reply = client.complete(request)
+                        answer, error = reply.text, None
+                    except LLMError as exc2:
+                        error = str(exc2)
             if reply is not None and reply.model_version:
                 versions[model].add(reply.model_version)
             counts["ok" if reply else "missing"] += 1
@@ -238,6 +254,7 @@ def run_experiment(
                 error=error,
                 input_tokens=reply.input_tokens if reply else None,
                 output_tokens=reply.output_tokens if reply else None,
+                max_tokens=request.max_tokens,
                 latency_s=reply.latency_s if reply else None,
                 cached=reply.cached if reply else None,
                 created_at=reply.created_at if reply else None,

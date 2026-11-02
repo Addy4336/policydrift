@@ -213,3 +213,36 @@ def test_label_sheet_hides_automatic_labels_and_reports_kappa(
     report = agreement_report(sheet)
     assert report["labelled"] == 6 and report["all"]["accuracy"] == 1.0
     assert report["disagreements"] == []
+
+
+def test_length_truncated_answers_are_retried_with_a_bigger_budget(
+    root: Path, tmp_path: Path, retriever: Retriever
+) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        small = json.loads(request.content)["max_tokens"] < 4096
+        message = {"content": "" if small else "36 months."}
+        return httpx.Response(
+            200,
+            json={
+                "model": "m-1",
+                "choices": [{"message": message, "finish_reason": "length" if small else "stop"}],
+                "usage": {"prompt_tokens": 5, "completion_tokens": 2048 if small else 300},
+            },
+        )
+
+    client = LLMClient(
+        ResponseCache(tmp_path / "c.sqlite"),
+        {"groq": "k", "gemini": "k"},
+        {"groq": 1000, "gemini": 1000},
+        http=httpx.Client(transport=httpx.MockTransport(handler)),
+        sleep=lambda _s: None,
+    )
+    box = _sandbox(root, tmp_path)
+    cfg = _cfg(conditions=["R0"], languages=["en"], item_limit=2)
+    summary = run_experiment(cfg, box, client, retriever)
+    answers = load_answers(box / "runs" / summary["run_id"])
+    assert [a["status"] for a in answers] == ["ok", "ok"]
+    assert {a["max_tokens"] for a in answers} == {cfg.retry_max_tokens}
+
+    again = run_experiment(cfg, box, client, retriever, dry_run=True)
+    assert again["uncached_calls"] == 0

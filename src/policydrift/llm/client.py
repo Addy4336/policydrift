@@ -66,7 +66,11 @@ class LLMClient:
                 if reply.status_code == 200:
                     parsed = provider.parse(reply.json())
                     if not parsed.text.strip():
-                        raise LLMError(f"{request.provider} returned an empty completion")
+                        raise LLMError(
+                            f"{request.provider} returned an empty completion "
+                            f"(finish_reason={parsed.finish_reason}, "
+                            f"output_tokens={parsed.output_tokens})"
+                        )
                     response = LLMResponse(
                         text=parsed.text,
                         provider=request.provider,
