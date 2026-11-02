@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
@@ -413,6 +413,24 @@ def run_cmd(
     )
 
 
+def _run_meta(run_dir: Path, root: Path) -> dict[str, Any]:
+    """``run.json``, or for a run still in progress the config it was started from (dev only)."""
+    import json
+
+    path = run_dir / "run.json"
+    if path.exists():
+        meta: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+        return meta
+    from policydrift.experiments.config import load_config
+
+    name = run_dir.name.rsplit("-", 1)[0]
+    cfg = load_config(root / "configs" / "experiments" / f"{name}.yaml")
+    if cfg.split != "dev":
+        raise typer.BadParameter(f"{run_dir} has no run.json and is not a dev run")
+    typer.echo("run.json not written yet (run in progress): scoring the answers so far.")
+    return {"config": cfg.model_dump(), "final": False}
+
+
 @app.command("score")
 def score_cmd(
     run_dir: Annotated[Path, typer.Argument(help="A runs/<run_id> directory.")],
@@ -427,7 +445,7 @@ def score_cmd(
     from policydrift.llm.client import load_models
     from policydrift.scoring.pipeline import load_answers, score_run, summarise
 
-    meta = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+    meta = _run_meta(run_dir, root)
     cfg = meta["config"]
     items = {i.item_id: i for i in load_items(root, cfg["split"], final=meta["final"])}
     judge_spec = None
@@ -459,13 +477,12 @@ def label_sheet_cmd(
     size: Annotated[int, typer.Option(help="Number of answers to label.")] = 45,
 ) -> None:
     """Write the human labelling sheet (automatic labels hidden) for judge validation."""
-    import json
 
     from policydrift.bench.split import load_items
     from policydrift.scoring.agreement import export_label_sheet
     from policydrift.scoring.pipeline import ScoreRecord, load_answers
 
-    meta = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+    meta = _run_meta(run_dir, root)
     items = {i.item_id: i for i in load_items(root, meta["config"]["split"], final=meta["final"])}
     with (run_dir / "scores.jsonl").open(encoding="utf-8") as f:
         scores = [ScoreRecord.model_validate_json(line) for line in f if line.strip()]
