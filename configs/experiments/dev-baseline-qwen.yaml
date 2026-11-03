@@ -1,0 +1,12 @@
+# Dev baseline, qwen only (Groq rate-limits this model hard).
+name: dev-baseline-qwen
+split: dev
+models: [groq-qwen]
+languages: [en, hi, gu]
+conditions: [R0, R1, R2, R3, R4, X]
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss
