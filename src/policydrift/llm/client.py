@@ -43,6 +43,10 @@ class LLMClient:
     def is_cached(self, request: LLMRequest) -> bool:
         return self._cache.get(request) is not None
 
+    def peek(self, request: LLMRequest) -> LLMResponse | None:
+        """The cached response for ``request`` without making a call, or None."""
+        return self._cache.get(request)
+
     def complete(self, request: LLMRequest) -> LLMResponse:
         hit = self._cache.get(request)
         if hit is not None:

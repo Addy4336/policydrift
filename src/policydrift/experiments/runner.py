@@ -12,11 +12,17 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+from policydrift.agents.mitigations import (
+    Checked,
+    run_conflict_checker,
+    show_dates_for,
+    system_for,
+)
 from policydrift.bench.split import BenchItem, load_items
 from policydrift.experiments.config import Condition, ExperimentConfig, Language
 from policydrift.experiments.prompts import SYSTEM, build_prompt
 from policydrift.ingest.build import Chunk
-from policydrift.llm import LLMClient, LLMError, LLMRequest
+from policydrift.llm import LLMClient, LLMError, LLMRequest, LLMResponse
 from policydrift.llm.client import load_models
 from policydrift.retrieval.search import Filters, Retriever
 from policydrift.scoring.matcher import same_value
@@ -47,6 +53,7 @@ class AnswerRecord(BaseModel):
     chunk_ids: list[str]
     context_has_current: bool | None  # does any retrieved chunk state the current value?
     context_has_old: bool | None
+    mitigation: str
     system: str
     prompt: str
     answer: str | None
@@ -54,6 +61,9 @@ class AnswerRecord(BaseModel):
     error: str | None
     input_tokens: int | None
     output_tokens: int | None
+    calls: int  # LLM calls behind this answer (1, or 2-3 for the conflict checker)
+    draft: str | None  # M-b only: the answer before the check
+    check: str | None  # M-b only: consistent, revised or unparsed
     max_tokens: int  # budget of the call that produced the answer (or the last failed attempt)
     latency_s: float | None
     cached: bool | None
@@ -93,7 +103,8 @@ def select_context(
     cur, old = item.current.version, item.old.version
     if condition == "R1":
         dl = _documents_in(item, lang, [cur], cfg)
-        hits = retriever.search(question, cfg.k, Filters(language=dl))
+        as_of = cfg.as_of if cfg.mitigation == "M-c" else None
+        hits = retriever.search(question, cfg.k, Filters(language=dl, as_of=as_of))
         return Context([h.chunk for h in hits], dl)
     if condition == "R2":
         dl = _documents_in(item, lang, [cur], cfg)
@@ -154,16 +165,44 @@ def select_items(cfg: ExperimentConfig, root: Path, final: bool) -> list[BenchIt
     return items[: cfg.item_limit] if cfg.item_limit else items
 
 
-def build_request(cfg: ExperimentConfig, spec: dict[str, Any], prompt: str) -> LLMRequest:
+def build_request(
+    cfg: ExperimentConfig, spec: dict[str, Any], prompt: str, system: str = SYSTEM
+) -> LLMRequest:
     return LLMRequest(
         provider=spec["provider"],
         model=spec["model"],
-        system=SYSTEM,
+        system=system,
         prompt=prompt,
         max_tokens=cfg.max_tokens,
         seed=cfg.seed,
         purpose="answer",
     )
+
+
+class _Uncached(Exception):
+    """A dry run reached a call that is not in the cache."""
+
+
+def _ask(client: LLMClient, cfg: ExperimentConfig, request: LLMRequest) -> LLMResponse:
+    """One call, with the bigger-budget retry for length-truncated empty answers."""
+    try:
+        return client.complete(request).model_copy(update={"max_tokens": request.max_tokens})
+    except LLMError as exc:
+        retry = _bigger_budget(cfg, request)
+        if retry is not None and "finish_reason=length" in str(exc):
+            return client.complete(retry).model_copy(update={"max_tokens": retry.max_tokens})
+        raise
+
+
+def _peek(client: LLMClient, cfg: ExperimentConfig, request: LLMRequest) -> LLMResponse:
+    retry = _bigger_budget(cfg, request)
+    for candidate in (request, retry):
+        if candidate is None:
+            continue
+        hit = client.peek(candidate)
+        if hit is not None:
+            return hit.model_copy(update={"max_tokens": candidate.max_tokens})
+    raise _Uncached
 
 
 def _bigger_budget(cfg: ExperimentConfig, request: LLMRequest) -> LLMRequest | None:
@@ -215,27 +254,51 @@ def run_experiment(
             else:
                 assert retriever is not None
                 ctx = select_context(retriever, item, lang, condition, cfg, position)
-            prompt = build_prompt(item.questions[lang], ctx.chunks, SHOW_DATES[condition])
-            request = build_request(cfg, spec, prompt)
-            retry = _bigger_budget(cfg, request)
+            question = item.questions[lang]
+            show = show_dates_for(cfg.mitigation, SHOW_DATES[condition])
+            system = system_for(cfg.mitigation, cfg.as_of)
+            prompt = build_prompt(question, ctx.chunks, show)
+            request = build_request(cfg, spec, prompt, system)
+            checker = cfg.mitigation == "M-b" and bool(ctx.chunks)
+
+            def make(sys_: str, prompt_: str, spec: dict[str, Any] = spec) -> LLMRequest:
+                return build_request(cfg, spec, prompt_, sys_)
+
             if dry_run:
-                hit = client.is_cached(request) or (retry is not None and client.is_cached(retry))
-                uncached += 0 if hit else 1
+                try:
+                    if checker:
+                        run_conflict_checker(
+                            lambda r: _peek(client, cfg, r),
+                            make,
+                            question,
+                            ctx.chunks,
+                            show,
+                            cfg.as_of,
+                        )
+                    else:
+                        _peek(client, cfg, request)
+                except _Uncached:
+                    uncached += 1
                 continue
             answer = error = None
             reply = None
+            checked: Checked | None = None
             try:
-                reply = client.complete(request)
+                if checker:
+                    checked = run_conflict_checker(
+                        lambda r: _ask(client, cfg, r),
+                        make,
+                        question,
+                        ctx.chunks,
+                        show,
+                        cfg.as_of,
+                    )
+                    reply = checked.final
+                else:
+                    reply = _ask(client, cfg, request)
                 answer = reply.text
             except LLMError as exc:
                 error = str(exc)
-                if retry is not None and "finish_reason=length" in error:
-                    request = retry
-                    try:
-                        reply = client.complete(request)
-                        answer, error = reply.text, None
-                    except LLMError as exc2:
-                        error = str(exc2)
             if reply is not None and reply.model_version:
                 versions[model].add(reply.model_version)
             counts["ok" if reply else "missing"] += 1
@@ -253,16 +316,24 @@ def run_experiment(
                 chunk_ids=[c.chunk_id for c in ctx.chunks],
                 context_has_current=_states(ctx.chunks, item.current.value) if ctx.chunks else None,
                 context_has_old=_states(ctx.chunks, item.old.value) if ctx.chunks else None,
-                system=SYSTEM,
+                mitigation=cfg.mitigation,
+                system=system,
                 prompt=prompt,
                 answer=answer,
                 status="ok" if reply else "missing",
                 error=error,
-                input_tokens=reply.input_tokens if reply else None,
-                output_tokens=reply.output_tokens if reply else None,
-                max_tokens=request.max_tokens,
-                latency_s=reply.latency_s if reply else None,
-                cached=reply.cached if reply else None,
+                input_tokens=(checked.input_tokens if checked else reply.input_tokens)
+                if reply
+                else None,
+                output_tokens=(checked.output_tokens if checked else reply.output_tokens)
+                if reply
+                else None,
+                calls=checked.calls if checked else 1,
+                draft=checked.draft if checked else None,
+                check=checked.verdict if checked else None,
+                max_tokens=(reply.max_tokens if reply else None) or request.max_tokens,
+                latency_s=(checked.latency_s if checked else reply.latency_s) if reply else None,
+                cached=(checked.cached if checked else reply.cached) if reply else None,
                 created_at=reply.created_at if reply else None,
             )
             assert handle is not None
@@ -282,7 +353,7 @@ def run_experiment(
     if not dry_run:
         meta = {
             "run_id": run_id,
-            "config": cfg.model_dump(),
+            "config": cfg.model_dump(mode="json"),
             "final": final,
             "git": git_state(root),
             "started_at": started.isoformat(timespec="seconds"),

@@ -1,0 +1,14 @@
+# Dev mitigation run (M-b, R1 only: the confirmatory comparison against dev-baseline R1).
+name: dev-m-b-gemini-35-flash-lite
+split: dev
+models: [gemini-35-flash-lite]
+languages: [en, hi, gu]
+conditions: [R1]
+mitigation: M-b
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

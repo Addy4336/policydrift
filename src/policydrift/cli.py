@@ -428,7 +428,7 @@ def _run_meta(run_dir: Path, root: Path) -> dict[str, Any]:
     if cfg.split != "dev":
         raise typer.BadParameter(f"{run_dir} has no run.json and is not a dev run")
     typer.echo("run.json not written yet (run in progress): scoring the answers so far.")
-    return {"config": cfg.model_dump(), "final": False}
+    return {"config": cfg.model_dump(mode="json"), "final": False}
 
 
 @app.command("score")

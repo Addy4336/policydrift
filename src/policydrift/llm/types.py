@@ -45,6 +45,7 @@ class LLMResponse(BaseModel):
     latency_s: float = 0.0
     cached: bool = False
     created_at: str = ""  # UTC ISO timestamp of the original (uncached) call
+    max_tokens: int | None = None  # token budget of the request that produced it (set by callers)
 
 
 class LLMError(RuntimeError):

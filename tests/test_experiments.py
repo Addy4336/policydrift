@@ -260,3 +260,33 @@ def test_documents_are_english_unless_native_is_requested(root: Path, retriever:
             nat = select_context(retriever, item, "gu", cond, native, position)  # type: ignore[arg-type]
             saw_native = saw_native or nat.doc_language == "gu"
     assert saw_native  # some dev items do have same-language sources
+
+
+def test_version_filter_keeps_only_chunks_in_force_on_the_as_of_date(
+    root: Path, retriever: Retriever
+) -> None:
+    items = select_items(_cfg(), root, final=False)
+    plain = _cfg(conditions=["R1"])
+    filtered = plain.model_copy(update={"mitigation": "M-c"})
+    stale_before = stale_after = 0
+    for position, item in enumerate(items):
+        for lang in ("en", "hi", "gu"):
+            for chunk in select_context(retriever, item, lang, "R1", plain, position).chunks:
+                stale_before += bool(chunk.effective_to and chunk.effective_to < filtered.as_of)
+            for chunk in select_context(retriever, item, lang, "R1", filtered, position).chunks:
+                stale_after += bool(chunk.effective_to and chunk.effective_to < filtered.as_of)
+    assert stale_before > 0 and stale_after == 0
+
+
+def test_checker_runs_log_calls_and_dry_run_counts_uncached_chains(
+    root: Path, tmp_path: Path, retriever: Retriever
+) -> None:
+    box = _sandbox(root, tmp_path)
+    cfg = _cfg(conditions=["R1"], languages=["en"], item_limit=2, mitigation="M-b")
+    consistent = _client(tmp_path, '{"consistent": true} Rs 1,25,000')
+    assert run_experiment(cfg, box, consistent, retriever, dry_run=True)["uncached_calls"] == 2
+    summary = run_experiment(cfg, box, consistent, retriever)
+    answers = load_answers(box / "runs" / summary["run_id"])
+    assert {a["mitigation"] for a in answers} == {"M-b"} and {a["calls"] for a in answers} == {2}
+    assert {a["check"] for a in answers} == {"consistent"}
+    assert run_experiment(cfg, box, consistent, retriever, dry_run=True)["uncached_calls"] == 0

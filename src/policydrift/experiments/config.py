@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 Condition = Literal["R0", "R1", "R2", "R3", "R4", "X"]
 Language = Literal["en", "hi", "gu"]
 PassageOrder = Literal["current_first", "old_first", "counterbalanced"]
+Mitigation = Literal["none", "M-a1", "M-a2", "M-b", "M-c"]
 
 
 class ExperimentConfig(BaseModel):
@@ -21,7 +23,9 @@ class ExperimentConfig(BaseModel):
     models: list[str]  # keys in configs/models.yaml
     languages: list[Language] = ["en", "hi", "gu"]
     conditions: list[Condition]
-    mitigation: Literal["none"] = "none"  # Phase 4 adds M-a1, M-a2, M-b, M-c
+    mitigation: Mitigation = "none"
+    # "Today" for the mitigations. Fixed in the config so a rerun is reproducible.
+    as_of: date = date(2026, 11, 1)
     k: int = Field(default=4, ge=1)  # chunks for R1 and R2
     k_each: int = Field(default=2, ge=1)  # chunks per version for R3, R4 and X
     # "english": every question language is answered over the same English passages, so the
@@ -37,6 +41,13 @@ class ExperimentConfig(BaseModel):
     item_limit: int = Field(default=0, ge=0)  # 0 = all items; otherwise the first N by item id
     only_confirmatory: bool = False
     judge_model: str = "groq-gpt-oss"
+
+    @model_validator(mode="after")
+    def _mitigations_apply_to_retrieval_conditions(self) -> ExperimentConfig:
+        allowed = {"R1", "R3"} if self.mitigation != "none" else set(self.conditions)
+        if not set(self.conditions) <= allowed:
+            raise ValueError(f"{self.mitigation} is only defined for conditions R1 and R3")
+        return self
 
 
 def load_config(path: Path) -> ExperimentConfig:
