@@ -1,0 +1,13 @@
+# Exploratory: Hindi and Gujarati questions over same-language passages where they exist.
+name: dev-native
+split: dev
+models: [groq-gpt-oss-20b, groq-qwen, gemini-flash-lite]
+languages: [en, hi, gu]
+conditions: [R1, R2, R3, R4]
+doc_language: native
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

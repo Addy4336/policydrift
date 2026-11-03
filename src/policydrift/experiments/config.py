@@ -24,6 +24,10 @@ class ExperimentConfig(BaseModel):
     mitigation: Literal["none"] = "none"  # Phase 4 adds M-a1, M-a2, M-b, M-c
     k: int = Field(default=4, ge=1)  # chunks for R1 and R2
     k_each: int = Field(default=2, ge=1)  # chunks per version for R3, R4 and X
+    # "english": every question language is answered over the same English passages, so the
+    # language comparison changes only the question. "native": the question's own language where
+    # every needed version has a source in it, else English (exploratory).
+    doc_language: Literal["english", "native"] = "english"
     passage_order: PassageOrder = "counterbalanced"
     max_tokens: int = Field(default=2048, ge=64)  # reasoning models spend most of it thinking
     # An answer that hits max_tokens with no visible text is retried once with this budget.

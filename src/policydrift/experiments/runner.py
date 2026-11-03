@@ -72,6 +72,12 @@ def doc_language(item: BenchItem, lang: str, versions: Sequence[str]) -> str:
     return lang if ok else "en"
 
 
+def _documents_in(
+    item: BenchItem, lang: str, versions: Sequence[str], cfg: ExperimentConfig
+) -> str:
+    return "en" if cfg.doc_language == "english" else doc_language(item, lang, versions)
+
+
 def select_context(
     retriever: Retriever,
     item: BenchItem,
@@ -86,14 +92,14 @@ def select_context(
     question = item.questions[lang]
     cur, old = item.current.version, item.old.version
     if condition == "R1":
-        dl = doc_language(item, lang, [cur])
+        dl = _documents_in(item, lang, [cur], cfg)
         hits = retriever.search(question, cfg.k, Filters(language=dl))
         return Context([h.chunk for h in hits], dl)
     if condition == "R2":
-        dl = doc_language(item, lang, [cur])
+        dl = _documents_in(item, lang, [cur], cfg)
         flt = Filters(schemes=frozenset({item.scheme}), versions=frozenset({cur}), language=dl)
         return Context([h.chunk for h in retriever.search(question, cfg.k, flt)], dl)
-    dl = "en" if condition == "X" else doc_language(item, lang, [cur, old])
+    dl = "en" if condition == "X" else _documents_in(item, lang, [cur, old], cfg)
 
     def top(version: str) -> list[Chunk]:
         flt = Filters(schemes=frozenset({item.scheme}), versions=frozenset({version}), language=dl)

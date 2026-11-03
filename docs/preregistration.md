@@ -33,7 +33,7 @@ Retrieval conditions:
 | R2 | Current only | Top-k chunks from the current version only | H1 (confirmatory) |
 | R3 | Both versions, dates shown | Matched chunks from the old and current versions, each labelled with its effective dates | H1 (confirmatory) |
 | R4 | Both versions, dates hidden | As R3, without effective-date labels | Exploratory: do models use date metadata? |
-| X | Cross-lingual | `hi`/`gu` query against an English-only official source vs a same-language source, where one exists | Exploratory |
+| X | Cross-lingual (exploratory) | `hi`/`gu` query over English passages. With the English-passage rule below this equals R3 for `hi`/`gu`, so it is no longer run separately | Exploratory |
 
 R3 and R4 count both failure directions: answering with the old value (stale) and applying the new value where the question asks about the old period (too new). Questions about past periods are exploratory.
 
@@ -46,6 +46,8 @@ Mitigations (§7 below gives the tests):
 | M-b | Conflict-checker agent: drafts an answer, checks it against the retrieved current rule, re-answers on disagreement | R1 (confirmatory), R3 (secondary) |
 | M-c | Version-filtered retrieval: keeps only chunks whose effective window contains the as-of date | R1 (confirmatory) |
 | — | Robustness: dates missing or wrong in the metadata, for M-a2 and M-c | Exploratory |
+
+**Passage language (decided 2026-11-03 from the dev baseline).** In the first dev baseline, Hindi and Gujarati questions in R3 mostly received English passages (the old version often has no hi/gu source), while R1 and R2 received same-language passages, and 52 of 56 X prompts were identical to R3. That confounded the language comparison with the documents shown. Confirmatory conditions (R0–R4) therefore use English passages for every question language (`doc_language: english`), so H2 changes only the question language. Same-language passages where they exist are an exploratory run (`doc_language: native`, `configs/experiments/dev-native.yaml`).
 
 Retrieval settings stay fixed across conditions: k, chunking, passage order (current-first and old-first, counterbalanced in R3/R4) and the embedding model.
 

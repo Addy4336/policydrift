@@ -246,3 +246,17 @@ def test_length_truncated_answers_are_retried_with_a_bigger_budget(
 
     again = run_experiment(cfg, box, client, retriever, dry_run=True)
     assert again["uncached_calls"] == 0
+
+
+def test_documents_are_english_unless_native_is_requested(root: Path, retriever: Retriever) -> None:
+    items = select_items(_cfg(), root, final=False)
+    native = _cfg(doc_language="native")
+    english = _cfg()
+    saw_native = False
+    for position, item in enumerate(items):
+        for cond in ("R1", "R2", "R3"):
+            ctx = select_context(retriever, item, "gu", cond, english, position)  # type: ignore[arg-type]
+            assert ctx.doc_language == "en" and {c.language for c in ctx.chunks} <= {"en"}
+            nat = select_context(retriever, item, "gu", cond, native, position)  # type: ignore[arg-type]
+            saw_native = saw_native or nat.doc_language == "gu"
+    assert saw_native  # some dev items do have same-language sources
