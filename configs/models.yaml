@@ -21,3 +21,6 @@ models:
   groq-qwen:
     provider: groq
     model: qwen/qwen3.8-27b
+  gemini-25-flash-lite:
+    provider: gemini
+    model: gemini-2.5-flash-lite

@@ -1,0 +1,13 @@
+# Dev baseline, gemini-2.5-flash-lite (replaces qwen, which Groq rate-limits too hard).
+name: dev-baseline-gemini25
+split: dev
+models: [gemini-25-flash-lite]
+languages: [en, hi, gu]
+conditions: [R0, R1, R2, R3, R4]  # X equals R3 once documents are English for every language
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss
