@@ -49,6 +49,8 @@ Mitigations (§7 below gives the tests):
 
 **Passage language (decided 2026-11-03 from the dev baseline).** In the first dev baseline, Hindi and Gujarati questions in R3 mostly received English passages (the old version often has no hi/gu source), while R1 and R2 received same-language passages, and 52 of 56 X prompts were identical to R3. That confounded the language comparison with the documents shown. Confirmatory conditions (R0–R4) therefore use English passages for every question language (`doc_language: english`), so H2 changes only the question language. Same-language passages where they exist are an exploratory run (`doc_language: native`, `configs/experiments/dev-native.yaml`).
 
+**Mitigation details (draft 2026-11-04, from the implementation).** "Today" is the fixed `as_of` date in the config (2026-11-01), not the wall clock, so reruns are reproducible. M-b's checker always sees the passages with their effective dates, whatever the baseline condition shows; the draft step is the unmodified baseline prompt, and a revision uses the date-stamped system prompt. M-b costs 2 calls per answer, or 3 when the check disagrees. M-c applies to R1 only, and is a no-op when no retrieved chunk has an effective window that excludes `as_of`.
+
 Retrieval settings stay fixed across conditions: k, chunking, passage order (current-first and old-first, counterbalanced in R3/R4) and the embedding model.
 
 ### 3. Knowledge state (closed-book probe)
