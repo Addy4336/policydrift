@@ -74,11 +74,17 @@ def label_distribution(rows: Sequence[Row]) -> str:
     return md_table(["mitigation", "cond", "model", "n", *LABELS, "missing", "outdated rate"], body)
 
 
-def h1_table(rows: Sequence[Row]) -> str:
-    """Pooled outdated rate per condition, fact-cluster bootstrap CI, and the tau rule."""
+def h1_table(rows: Sequence[Row], *, with_current_only: bool = True) -> str:
+    """Pooled outdated rate per condition, fact-cluster bootstrap CI, and the tau rule.
+
+    With ``with_current_only`` only answers whose retrieved context states the current value are
+    counted, which is what H1 ("even with the current rule retrieved") is about.
+    """
     out = []
     for cond in ("R2", "R3"):
         g = _select(rows, mitigation="none", condition=cond)
+        if with_current_only:
+            g = [r for r in g if r.has_current]
         if not g:
             continue
         rate, lo, hi = cluster_bootstrap_ci(outdated(g), [r.fact_id for r in g])
@@ -180,9 +186,16 @@ def _latency(rows: Sequence[Row]) -> str:
     return f"{statistics.median(xs):.1f} / {p90:.1f}"
 
 
-def h3_table(rows: Sequence[Row], condition: str = "R3") -> str:
-    """Each mitigation against the baseline at ``condition``, on matched answers."""
+def h3_table(rows: Sequence[Row], condition: str = "R3", *, with_current_only: bool = True) -> str:
+    """Each mitigation against the baseline at ``condition``, on matched answers.
+
+    With ``with_current_only`` pairs whose baseline context lacks the current value are dropped:
+    there a prompt or checker has nothing to find (the retrieval failed), and that is reported
+    separately.
+    """
     base_all = _select(rows, mitigation="none", condition=condition)
+    if with_current_only:
+        base_all = [r for r in base_all if r.has_current]
     stats: list[dict[str, object]] = []
     ps: list[float] = []
     for mit in MITIGATIONS:
@@ -375,8 +388,10 @@ def build_paper(rows: Sequence[Row], out_dir: Path, title: str) -> list[Path]:
     parts = {
         "label_distribution": label_distribution(rows),
         "h1": h1_table(rows),
+        "h1_all_answers": h1_table(rows, with_current_only=False),
         "h2": h2_table(rows),
         "h3_r3": h3_table(rows, "R3"),
+        "h3_r3_all_answers": h3_table(rows, "R3", with_current_only=False),
         "mitigations_r1_descriptive": r1_descriptive_table(rows),
         "per_fact": per_fact_table(rows),
     }

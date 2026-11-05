@@ -1,0 +1,24 @@
+| condition | n | outdated rate | 95% CI (bootstrap over facts) | CI lower > 2% |
+|---|---|---|---|---|
+| R2 | 230 | 0.0% | [0.0%, 0.0%] | no |
+| R3 | 252 | 24.2% | [8.7%, 42.5%] | yes |
+
+Per model:
+
+| condition | model | n | outdated rate |
+|---|---|---|---|
+| R0 | gemini-35-flash-lite | 84 | 47.6% |
+| R0 | gemini-flash-lite | 84 | 66.7% |
+| R0 | groq-gpt-oss-20b | 69 | 62.3% |
+| R1 | gemini-35-flash-lite | 84 | 19.0% |
+| R1 | gemini-flash-lite | 84 | 17.9% |
+| R1 | groq-gpt-oss-20b | 84 | 16.7% |
+| R2 | gemini-35-flash-lite | 84 | 0.0% |
+| R2 | gemini-flash-lite | 79 | 0.0% |
+| R2 | groq-gpt-oss-20b | 67 | 0.0% |
+| R3 | gemini-35-flash-lite | 84 | 25.0% |
+| R3 | gemini-flash-lite | 84 | 16.7% |
+| R3 | groq-gpt-oss-20b | 84 | 31.0% |
+| R4 | gemini-35-flash-lite | 84 | 28.6% |
+| R4 | gemini-flash-lite | 84 | 29.8% |
+| R4 | groq-gpt-oss-20b | 70 | 22.9% |

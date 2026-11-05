@@ -12,6 +12,7 @@
 | M-b | R1 | gemini-35-flash-lite | 84 | 65 | 9 | 9 | 1 | 0 | 10.7% |
 | M-b | R1 | gemini-flash-lite | 83 | 67 | 9 | 7 | 0 | 1 | 10.8% |
 | M-b | R1 | groq-gpt-oss-20b | 84 | 68 | 8 | 8 | 0 | 0 | 9.5% |
+| M-b | R3 | gemini-35-flash-lite | 84 | 65 | 12 | 6 | 1 | 0 | 14.3% |
 | M-b | R3 | gemini-flash-lite | 84 | 70 | 11 | 3 | 0 | 0 | 13.1% |
 | M-c | R1 | gemini-35-flash-lite | 84 | 73 | 0 | 11 | 0 | 0 | 0.0% |
 | M-c | R1 | gemini-flash-lite | 84 | 72 | 0 | 11 | 1 | 0 | 0.0% |

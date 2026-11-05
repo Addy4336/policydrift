@@ -23,3 +23,4 @@ runs:
   - runs/dev-m-b-gemini-flash-lite-r3-20261105T095646Z
   - runs/dev-m-a1-gemini-35-flash-lite-r3-20261105T094429Z
   - runs/dev-m-a2-gemini-35-flash-lite-r3-20261105T095319Z
+  - runs/dev-m-b-gemini-35-flash-lite-r3-20261105T101026Z

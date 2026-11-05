@@ -16,6 +16,7 @@
 | M-b | R1 | gemini-35-flash-lite | 84 | 65 | 9 | 9 | 1 | 0 | 10.7% |
 | M-b | R1 | gemini-flash-lite | 83 | 67 | 9 | 7 | 0 | 1 | 10.8% |
 | M-b | R1 | groq-gpt-oss-20b | 84 | 68 | 8 | 8 | 0 | 0 | 9.5% |
+| M-b | R3 | gemini-35-flash-lite | 84 | 65 | 12 | 6 | 1 | 0 | 14.3% |
 | M-b | R3 | gemini-flash-lite | 84 | 70 | 11 | 3 | 0 | 0 | 13.1% |
 | M-c | R1 | gemini-35-flash-lite | 84 | 73 | 0 | 11 | 0 | 0 | 0.0% |
 | M-c | R1 | gemini-flash-lite | 84 | 72 | 0 | 11 | 1 | 0 | 0.0% |
@@ -37,6 +38,33 @@
 | none | R4 | groq-gpt-oss-20b | 70 | 53 | 16 | 0 | 1 | 0 | 22.9% |
 
 ## h1
+
+| condition | n | outdated rate | 95% CI (bootstrap over facts) | CI lower > 2% |
+|---|---|---|---|---|
+| R2 | 206 | 0.0% | [0.0%, 0.0%] | no |
+| R3 | 201 | 10.0% | [1.1%, 20.4%] | no |
+
+Per model:
+
+| condition | model | n | outdated rate |
+|---|---|---|---|
+| R0 | gemini-35-flash-lite | 84 | 47.6% |
+| R0 | gemini-flash-lite | 84 | 66.7% |
+| R0 | groq-gpt-oss-20b | 69 | 62.3% |
+| R1 | gemini-35-flash-lite | 84 | 19.0% |
+| R1 | gemini-flash-lite | 84 | 17.9% |
+| R1 | groq-gpt-oss-20b | 84 | 16.7% |
+| R2 | gemini-35-flash-lite | 84 | 0.0% |
+| R2 | gemini-flash-lite | 79 | 0.0% |
+| R2 | groq-gpt-oss-20b | 67 | 0.0% |
+| R3 | gemini-35-flash-lite | 84 | 25.0% |
+| R3 | gemini-flash-lite | 84 | 16.7% |
+| R3 | groq-gpt-oss-20b | 84 | 31.0% |
+| R4 | gemini-35-flash-lite | 84 | 28.6% |
+| R4 | gemini-flash-lite | 84 | 29.8% |
+| R4 | groq-gpt-oss-20b | 70 | 22.9% |
+
+## h1_all_answers
 
 | condition | n | outdated rate | 95% CI (bootstrap over facts) | CI lower > 2% |
 |---|---|---|---|---|
@@ -82,9 +110,17 @@ Mixed-effects logistic regression (preregistration §6) is not fitted here; the 
 
 | mitigation | n | baseline | with | fixed / broke | change [95% CI, facts] | p (one-sided) | p Holm | refusals | current | calls | tokens/answer | latency median / p90 s (uncached) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
+| M-a1 | 134 | 6.7% | 0.0% | 9 / 0 | -6.7% [-16.7%, 0.0%] | 0.0020 | 0.0059 | 6.0% (base 6.7%) | 94.0% (base 85.1%) | 1.00 | 1009 (1.0x) | 1.7 / 8.8 |
+| M-a2 | 134 | 6.7% | 9.0% | 1 / 4 | 2.2% [-1.4%, 6.5%] | 0.9688 | 0.9688 | 5.2% (base 6.7%) | 85.8% (base 85.1%) | 1.00 | 989 (1.0x) | 1.2 / 6.5 |
+| M-b | 134 | 6.7% | 0.0% | 9 / 0 | -6.7% [-16.7%, 0.0%] | 0.0020 | 0.0059 | 6.0% (base 6.7%) | 93.3% (base 85.1%) | 2.12 | 2137 (2.2x) | 1.5 / 7.7 |
+
+## h3_r3_all_answers
+
+| mitigation | n | baseline | with | fixed / broke | change [95% CI, facts] | p (one-sided) | p Holm | refusals | current | calls | tokens/answer | latency median / p90 s (uncached) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | M-a1 | 168 | 20.8% | 13.1% | 13 / 0 | -7.7% [-16.7%, 0.0%] | 0.0001 | 0.0004 | 6.0% (base 5.4%) | 80.4% (base 72.0%) | 1.00 | 1009 (1.0x) | 1.7 / 8.8 |
 | M-a2 | 168 | 20.8% | 22.6% | 2 / 5 | 1.8% [-1.2%, 4.8%] | 0.9375 | 0.9375 | 4.2% (base 5.4%) | 72.0% (base 72.0%) | 1.00 | 987 (1.0x) | 1.2 / 6.5 |
-| M-b | 84 | 16.7% | 13.1% | 3 / 0 | -3.6% [-7.1%, 0.0%] | 0.1250 | 0.2500 | 3.6% (base 4.8%) | 83.3% (base 78.6%) | 2.07 | 2083 (2.2x) | 0.9 / 1.2 |
+| M-b | 168 | 20.8% | 13.7% | 13 / 1 | -7.1% [-16.1%, 0.0%] | 0.0009 | 0.0018 | 5.4% (base 5.4%) | 80.4% (base 72.0%) | 2.12 | 2142 (2.2x) | 1.5 / 7.7 |
 
 ## mitigations_r1_descriptive
 
