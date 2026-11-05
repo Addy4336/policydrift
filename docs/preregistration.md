@@ -41,11 +41,13 @@ Mitigations (§7 below gives the tests):
 
 | Code | Mitigation | Applied to |
 |---|---|---|
-| M-a1 | Date-stamped prompt: today's date, plus an instruction to answer with the rule in force today | R1 (confirmatory), R3 (secondary) |
-| M-a2 | Validity-statement prompt: each passage states the period it applies to | R1, R3 (secondary) |
-| M-b | Conflict-checker agent: drafts an answer, checks it against the retrieved current rule, re-answers on disagreement | R1 (confirmatory), R3 (secondary) |
-| M-c | Version-filtered retrieval: keeps only chunks whose effective window contains the as-of date | R1 (confirmatory) |
+| M-a1 | Date-stamped prompt: today's date, plus an instruction to answer with the rule in force today | R3 (confirmatory), R1 (descriptive) |
+| M-a2 | Validity-statement prompt: each passage states the period it applies to | R3 (confirmatory), R1 (descriptive) |
+| M-b | Conflict-checker agent: drafts an answer, checks it against the retrieved current rule, re-answers on disagreement | R3 (confirmatory), R1 (descriptive) |
+| M-c | Version-filtered retrieval: keeps only chunks whose effective window contains the as-of date | R1 (descriptive; not defined for R3, which already selects versions) |
 | — | Robustness: dates missing or wrong in the metadata, for M-a2 and M-c | Exploratory |
+
+**Confirmatory condition for mitigations (decided 2026-11-05, before any test-split run).** Mitigations are confirmed at **R3**, not R1. Reason, from the dev split: at R1 the current-version chunk was absent from the retrieved context in 38 of 40 stale baseline answers (the stale answers are retrieval failures on a few facts, chiefly the two SVANidhi loan facts), so a mitigation that acts on the prompt or on the answer cannot be tested there; at R3 the current chunk is guaranteed present and the dev baseline stale rate is 17-31% across models. R1 results for all mitigations, M-c at R1 (which removes stale chunks by construction and is an upper bound that depends on correct effective dates), and the current-chunk recall at k=4 and k=8 per fact are **descriptive**. Retrieval recall is reported per fact, not pooled.
 
 **Passage language (decided 2026-11-03 from the dev baseline).** In the first dev baseline, Hindi and Gujarati questions in R3 mostly received English passages (the old version often has no hi/gu source), while R1 and R2 received same-language passages, and 52 of 56 X prompts were identical to R3. That confounded the language comparison with the documents shown. Confirmatory conditions (R0–R4) therefore use English passages for every question language (`doc_language: english`), so H2 changes only the question language. Same-language passages where they exist are an exploratory run (`doc_language: native`, `configs/experiments/dev-native.yaml`).
 
@@ -74,7 +76,7 @@ Each model's R0 answer to each item is labelled `knows_old`, `knows_current` or 
   - **Settled 2026-11-03 (draft, before any test run):** κ target kept at κ ≥ 0.80. If the target is missed, everything the judge decided is labelled by humans instead. Answers the judge cannot parse are labelled `unresolved` and reported, never silently dropped.
 
 ### 5. H1 decision rule (confirmatory)
-H1 is tested separately in R2 and R3, on outdated rates pooled across models and languages. The 95% CI comes from a cluster bootstrap over items, with 10,000 resamples. H1 is supported in a condition if the CI's lower bound is above the threshold *τ* after Holm correction across the two conditions. Per-model and per-language rates are reported alongside.
+H1 is tested separately in R2 and R3, on outdated rates pooled across models and languages. The 95% CI comes from a cluster bootstrap with 10,000 resamples, resampling whole facts (all items, languages and models of a fact stay together; revised 2026-11-05 from "over items", because the same fact is asked in several wordings). H1 is supported in a condition if the CI's lower bound is above the threshold *τ* after Holm correction across the two conditions. Per-model and per-language rates are reported alongside.
 - **Settled 2026-11-03 (draft, before any test run):** τ = 2% kept. In English with only up-to-date evidence, Stale-Document Poisoning found models failed to follow it in about 0–3% of trials. A 2% threshold separates a real effect from scorer noise without assuming a large one.
 
 ### 6. H2 decision rule (confirmatory)
@@ -82,9 +84,11 @@ H1 is tested separately in R2 and R3, on outdated rates pooled across models and
 - **Contrasts:** `hi` > `en` and `gu` > `en`, each one-sided, because H2 states a direction. Holm correction across the two.
 - **Also reported:** two-sided 95% CIs on odds ratios and rate differences, plus per-pair exact McNemar tests as a robustness check.
 - If the model fails to converge, the pre-specified fallback is exact McNemar on paired item × model outcomes, with Holm correction.
+- **Implementation note (2026-11-05, before any test run):** the analysis code has no mixed-effects dependency, so the fallback (exact one-sided McNemar on paired item × model × condition outcomes, Holm, plus a fact-cluster bootstrap CI) is the reported H2 test. A mixed-effects fit, if added, is exploratory.
 
 ### 7. H3 decision rule (confirmatory)
-- **Tests:** each of M-a1, M-b and M-c is compared with R1 on the same items, models and languages, using an exact McNemar test on the binary outdated outcome. Each test is one-sided (a reduction) and Holm-corrected across the three. Effect sizes are paired rate differences with 95% paired-bootstrap CIs.
+- **Tests (revised 2026-11-05, before any test run):** each of M-a1, M-a2 and M-b is compared with the R3 baseline on the same items, models and languages, using an exact McNemar test on the binary outdated outcome, with the cluster (the fact) respected by a paired bootstrap over facts for the interval. Each test is one-sided (a reduction) and Holm-corrected across the three. M-c is not tested: it is reported descriptively at R1 against the R1 baseline, together with its refusal rate and the missing/wrong-dates robustness runs. Effect sizes are paired rate differences with 95% paired-bootstrap CIs.
+- **Reported next to every outdated rate:** the full label distribution (current, outdated, refusal, other), so that a drop achieved by refusing is visible. The primary outcome keeps refusals in the denominator.
 - **Cost:** mean prompt and completion tokens per answer, and LLM calls per answer.
 - **Latency:** median and p90 wall-clock time per answer, measured only on uncached calls. Cache hits are excluded, and run timestamps are logged so free-tier load can be inspected.
 - "Different tradeoffs" is described, not tested: the report shows accuracy, outdated rate, tokens and latency per mitigation as a table and a Pareto plot.
@@ -104,7 +108,7 @@ H1 is tested separately in R2 and R3, on outdated rates pooled across models and
   - items whose official sources turn out to be ambiguous
   - answers missing after 5 retries, which are recorded as `missing` and are not refusals
 - **Sample size:** all verified test items. There is no optional stopping.
-  - **OPEN:** the target number of items per language, set in Phase 2 after a power check on dev-split discordance rates.
+  - **Power (2026-11-05):** the unit that matters is the fact (28 test facts), not the answer. A fact-level simulation resampling dev facts gives about 0.96 power for a drop like M-b's at 28 facts at R1, but depends on how many test facts are stale-prone (on dev, 4 of 14 facts carry all R1 stale answers). Reported as descriptive; no stopping rule changes.
 
 ## Freeze
 

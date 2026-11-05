@@ -1,0 +1,15 @@
+# Final test run: M-c at R1 (descriptive).
+name: test-m-c-groq-gpt-oss-20b
+split: test  # needs --final
+models: [groq-gpt-oss-20b]
+languages: [en, hi, gu]
+conditions: [R1]
+mitigation: M-c
+only_confirmatory: true
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

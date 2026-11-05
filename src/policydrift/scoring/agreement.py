@@ -110,6 +110,104 @@ def export_label_sheet(
     return len(chosen)
 
 
+STRATA_SHARE = {"outdated": 0.40, "other": 0.20, "refusal": 0.15, "current": 0.25}
+
+
+def pick_stratified(
+    pool: Sequence[tuple[str, ScoreRecord, Mapping[str, Any]]],
+    size: int,
+    seed: int,
+    exclude: set[tuple[str, str, str]] | None = None,
+) -> list[int]:
+    """Indices into ``pool`` over-sampling rare outcomes, without duplicate answers.
+
+    Answers are unique on (item, language, answer text) and a pair already in ``exclude`` (an
+    earlier labelled sheet) is skipped. Quotas follow ``STRATA_SHARE`` by automatic label; a stratum
+    that runs short hands its quota to the others. Languages are spread within each stratum.
+    """
+    rng = random.Random(seed)
+    seen = set(exclude or ())
+    by_label: dict[str, dict[str, list[int]]] = {}
+    order = list(range(len(pool)))
+    rng.shuffle(order)
+    for i in order:
+        _, rec, ans = pool[i]
+        if rec.label not in STRATA_SHARE:
+            continue
+        key = (rec.item_id, rec.language, " ".join(str(ans["answer"]).split()))
+        if key in seen:
+            continue
+        seen.add(key)
+        by_label.setdefault(rec.label, {}).setdefault(rec.language, []).append(i)
+
+    def take(label: str, k: int) -> list[int]:
+        langs = by_label.get(label, {})
+        out: list[int] = []
+        while len(out) < k and any(langs.values()):
+            for lang in sorted(langs):
+                if langs[lang] and len(out) < k:
+                    out.append(langs[lang].pop())
+        return out
+
+    chosen: list[int] = []
+    for label, share in STRATA_SHARE.items():
+        chosen += take(label, round(size * share))
+    for label in STRATA_SHARE:  # hand the shortfall to whatever is left
+        if len(chosen) >= size:
+            break
+        chosen += take(label, size - len(chosen))
+    rng.shuffle(chosen)
+    return chosen[:size]
+
+
+def export_pooled_label_sheet(
+    pool: Sequence[tuple[str, ScoreRecord, Mapping[str, Any]]],
+    items: Mapping[str, BenchItem],
+    out: Path,
+    *,
+    size: int = 60,
+    seed: int = 11,
+    exclude: set[tuple[str, str, str]] | None = None,
+) -> int:
+    """Labelling sheet over several runs, stratified by automatic label (labels hidden)."""
+    chosen = pick_stratified(pool, size, seed, exclude)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    key = []
+    with out.open("w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=COLUMNS)
+        writer.writeheader()
+        for n, i in enumerate(chosen, start=1):
+            run, rec, ans = pool[i]
+            item = items[rec.item_id]
+            writer.writerow(
+                {
+                    "row_id": n,
+                    "language": rec.language,
+                    "question": item.questions[rec.language],
+                    "old_value": describe_value(item.kind, item.old.value),
+                    "current_value": describe_value(item.kind, item.current.value),
+                    "answer": ans["answer"],
+                    "human_label": "",
+                    "note": "",
+                }
+            )
+            key.append(
+                {
+                    "row_id": n,
+                    "auto_label": rec.label,
+                    "method": rec.method,
+                    "item_id": rec.item_id,
+                    "run": run,
+                    "model": rec.model,
+                    "condition": rec.condition,
+                }
+            )
+    out.with_suffix(".key.json").write_text(
+        json.dumps(key, indent=1) + "\n", encoding="utf-8", newline="\n"
+    )
+    return len(chosen)
+
+
 def read_human_labels(sheet: Path) -> dict[int, str]:
     labels: dict[int, str] = {}
     with sheet.open(encoding="utf-8-sig", newline="") as f:

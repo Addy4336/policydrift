@@ -1,0 +1,15 @@
+# Final test run: M-a2 at R3 (confirmatory, H3).
+name: test-m-a2-gemini-35-flash-lite-r3
+split: test  # needs --final
+models: [gemini-35-flash-lite]
+languages: [en, hi, gu]
+conditions: [R3]
+mitigation: M-a2
+only_confirmatory: true
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

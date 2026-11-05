@@ -70,6 +70,9 @@ def _cfg(**changes: object) -> ExperimentConfig:
 def test_shipped_configs_load(root: Path) -> None:
     for path in (root / "configs" / "experiments").glob("*.yaml"):
         assert load_config(path).split == "dev"  # tuning configs never point at the test split
+    for path in (root / "configs" / "final").glob("*.yaml"):
+        cfg = load_config(path)  # final configs are the only ones that name the test split
+        assert cfg.split == "test" and cfg.only_confirmatory
 
 
 def test_x_condition_is_skipped_for_english() -> None:

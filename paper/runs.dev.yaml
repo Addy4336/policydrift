@@ -1,0 +1,25 @@
+# Scored dev runs behind paper/dev. Later entries replace earlier ones for the same (mitigation, condition, model).
+split: dev
+runs:
+  - runs/dev-baseline-gemini-20261103T075424Z
+  - runs/dev-baseline-gemini-r1fill-20261105T090948Z
+  - runs/dev-baseline-gemini35-20261103T103656Z
+  - runs/dev-baseline-oss20b-20261103T121736Z
+  - runs/dev-baseline-oss20b-r1-20261105T083326Z
+  - runs/dev-baseline-oss20b-r3-20261105T091010Z
+  - runs/dev-m-a1-gemini-flash-lite-20261104T080639Z
+  - runs/dev-m-a1-gemini-35-flash-lite-20261104T080639Z
+  - runs/dev-m-a1-groq-gpt-oss-20b-20261104T080639Z
+  - runs/dev-m-a2-gemini-flash-lite-20261105T043127Z
+  - runs/dev-m-a2-gemini-35-flash-lite-20261105T042839Z
+  - runs/dev-m-b-gemini-flash-lite-20261104T083338Z
+  - runs/dev-m-b-gemini-35-flash-lite-20261104T081512Z
+  - runs/dev-m-b-groq-gpt-oss-20b-20261105T053242Z
+  - runs/dev-m-c-gemini-flash-lite-20261105T042839Z
+  - runs/dev-m-c-gemini-35-flash-lite-20261104T080839Z
+  - runs/dev-m-c-groq-gpt-oss-20b-20261104T081339Z
+  - runs/dev-m-a1-gemini-flash-lite-r3-20261105T094416Z
+  - runs/dev-m-a2-gemini-flash-lite-r3-20261105T094747Z
+  - runs/dev-m-b-gemini-flash-lite-r3-20261105T095646Z
+  - runs/dev-m-a1-gemini-35-flash-lite-r3-20261105T094429Z
+  - runs/dev-m-a2-gemini-35-flash-lite-r3-20261105T095319Z

@@ -491,6 +491,53 @@ def label_sheet_cmd(
     typer.echo(f"{n} answers -> {out}\nFill human_label with: current, outdated, other or refusal.")
 
 
+@app.command("label-sheet-pool")
+def label_sheet_pool_cmd(
+    run_dirs: Annotated[list[Path], typer.Argument(help="Scored dev run directories to pool.")],
+    out_name: Annotated[str, typer.Option(help="File stem under judge_validation/.")] = "dev-pool",
+    root: RootOption = Path("."),
+    size: Annotated[int, typer.Option(help="Number of answers to label.")] = 60,
+    exclude_sheet: Annotated[
+        list[Path] | None, typer.Option(help="Earlier sheet (+ .key.json) whose answers to skip.")
+    ] = None,
+) -> None:
+    """Labelling sheet pooled over runs: rare outcomes over-sampled, duplicate answers dropped."""
+
+    from policydrift.bench.split import load_items
+    from policydrift.scoring.agreement import export_pooled_label_sheet
+    from policydrift.scoring.pipeline import ScoreRecord, load_answers
+
+    pool: list[Any] = []
+    items: dict[str, Any] = {}
+    for run_dir in run_dirs:
+        meta = _run_meta(run_dir, root)
+        if meta["final"] or meta["config"]["split"] != "dev":
+            raise typer.BadParameter("pooled sheets are for dev runs only")
+        items |= {i.item_id: i for i in load_items(root, "dev", final=False)}
+        with (run_dir / "scores.jsonl").open(encoding="utf-8") as f:
+            scores = [ScoreRecord.model_validate_json(line) for line in f if line.strip()]
+        pool += [(run_dir.name, s, a) for s, a in zip(scores, load_answers(run_dir), strict=True)]
+    exclude = _labelled_answers(exclude_sheet or [], pool)
+    out = root / "data" / "benchmark" / "judge_validation" / f"{out_name}.csv"
+    n = export_pooled_label_sheet(pool, items, out, size=size, exclude=exclude)
+    typer.echo(f"{n} answers -> {out}\nFill human_label with: current, outdated, other or refusal.")
+
+
+def _labelled_answers(sheets: list[Path], pool: Any) -> set[tuple[str, str, str]]:
+    """(item, language, answer text) triples of earlier labelled sheets, by matching row text."""
+    import csv
+
+    seen: set[tuple[str, str]] = set()
+    for sheet in sheets:
+        with sheet.open(encoding="utf-8-sig", newline="") as f:
+            seen |= {(r["language"], " ".join(r["answer"].split())) for r in csv.DictReader(f)}
+    return {
+        (rec.item_id, rec.language, " ".join(str(ans["answer"]).split()))
+        for _, rec, ans in pool
+        if (rec.language, " ".join(str(ans["answer"]).split())) in seen
+    }
+
+
 @app.command("label-agree")
 def label_agree_cmd(sheet: Annotated[Path, typer.Argument(help="The labelled CSV.")]) -> None:
     """Cohen's kappa of the automatic labels against the human labels."""
@@ -499,6 +546,30 @@ def label_agree_cmd(sheet: Annotated[Path, typer.Argument(help="The labelled CSV
     from policydrift.scoring.agreement import agreement_report
 
     typer.echo(json.dumps(agreement_report(sheet), indent=2, ensure_ascii=False))
+
+
+@app.command("paper")
+def paper_cmd(
+    manifest: Annotated[
+        Path, typer.Option(help="YAML with `split` and `runs` (scored run directories).")
+    ] = Path("paper/runs.dev.yaml"),
+    out: Annotated[Path | None, typer.Option(help="Output folder (default paper/<split>).")] = None,
+    final: Annotated[
+        bool, typer.Option("--final", help="Required for a test-split manifest.")
+    ] = False,
+    root: RootOption = Path("."),
+) -> None:
+    """Regenerate every table and figure from the scored runs listed in a manifest."""
+    from policydrift.analysis.data import load_all, load_manifest
+    from policydrift.analysis.report import build_paper
+
+    split, run_dirs = load_manifest(root / manifest)
+    if split == "test" and not final:
+        raise typer.BadParameter("a test-split manifest needs --final")
+    rows = load_all([root / d for d in run_dirs])
+    target = root / (out or Path("paper") / split)
+    written = build_paper(rows, target, f"PolicyDrift results ({split} split)")
+    typer.echo(f"{len(rows)} answers from {len(run_dirs)} runs -> {len(written)} files in {target}")
 
 
 if __name__ == "__main__":

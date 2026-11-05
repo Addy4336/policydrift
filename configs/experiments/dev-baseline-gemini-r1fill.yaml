@@ -1,0 +1,13 @@
+# Dev baseline R1, gemini-3.1: fills the 5 slots that failed with HTTP 429/503.
+name: dev-baseline-gemini-r1fill
+split: dev
+models: [gemini-flash-lite]
+languages: [en, hi, gu]
+conditions: [R1]
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

@@ -1,0 +1,14 @@
+# Dev mitigation run (M-a1, R3: both versions with dates in context; compared with the dev-baseline R3).
+name: dev-m-a1-groq-gpt-oss-20b-r3
+split: dev
+models: [groq-gpt-oss-20b]
+languages: [en, hi, gu]
+conditions: [R3]
+mitigation: M-a1
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss
