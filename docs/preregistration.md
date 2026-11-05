@@ -15,7 +15,7 @@ When government rules change (scholarships, welfare schemes, subsidy limits, tax
 - **H2.** The outdated-answer rate is higher for Hindi and Gujarati queries than English.
 - **H3.** Mitigations (date-stamped prompts, a conflict-checker agent, version-filtered retrieval) reduce the rate, with different cost/latency tradeoffs.
 
-## Operationalisation (draft; frozen before Phase 3)
+## Operationalisation (frozen 2026-11-05; see Freeze)
 
 Every item must be final, committed and recorded under "Freeze" below before the first test-split run. **Confirmatory** analyses test H1–H3 as written. **Exploratory** analyses are reported as such and are never used to claim support for a hypothesis.
 
@@ -76,7 +76,7 @@ Each model's R0 answer to each item is labelled `knows_old`, `knows_current` or 
   - **Settled 2026-11-03 (draft, before any test run):** κ target kept at κ ≥ 0.80. If the target is missed, everything the judge decided is labelled by humans instead. Answers the judge cannot parse are labelled `unresolved` and reported, never silently dropped.
 
 ### 5. H1 decision rule (confirmatory)
-**PROPOSED, awaiting the owner's decision before the freeze (2026-11-05):** H1 says stale answers occur *even with the current rule retrieved*, so the primary H1 and H3 analyses count only answers whose retrieved context states the current value (`context_has_current`, set by retrieval before the model answers, identical across arms). The same tables over all answers are reported as a sensitivity analysis, together with the share of answers where retrieval failed. On dev this choice matters: R3 outdated rate 10.0% (95% CI 1.1% to 20.4%, below tau at the lower bound) with the current value in context, against 24.2% (8.7% to 42.5%) over all answers. It is chosen from H1's wording, not to obtain a result, and it would be chosen the same way if the test split came out the other way.
+**SETTLED at the freeze, 2026-11-05 (owner's decision, before any test-split run):** H1 says stale answers occur *even with the current rule retrieved*, so the primary H1 and H3 analyses count only answers whose retrieved context states the current value (`context_has_current`, set by retrieval before the model answers, identical across arms). The same tables over all answers are reported as a sensitivity analysis, together with the share of answers where retrieval failed. On dev this choice matters: R3 outdated rate 10.0% (95% CI 1.1% to 20.4%, below tau at the lower bound) with the current value in context, against 24.2% (8.7% to 42.5%) over all answers. It is chosen from H1's wording, not to obtain a result, and it would be chosen the same way if the test split came out the other way.
 
 H1 is tested separately in R2 and R3, on outdated rates pooled across models and languages. The 95% CI comes from a cluster bootstrap with 10,000 resamples, resampling whole facts (all items, languages and models of a fact stay together; revised 2026-11-05 from "over items", because the same fact is asked in several wordings). H1 is supported in a condition if the CI's lower bound is above the threshold *τ* after Holm correction across the two conditions. Per-model and per-language rates are reported alongside.
 - **Settled 2026-11-03 (draft, before any test run):** τ = 2% kept. In English with only up-to-date evidence, Stale-Document Poisoning found models failed to follow it in about 0–3% of trials. A 2% threshold separates a real effect from scorer noise without assuming a large one.
@@ -116,8 +116,11 @@ H1 is tested separately in R2 and R3, on outdated rates pooled across models and
 
 | Field | Value |
 |---|---|
-| Operationalisation frozen on | _not yet_ |
-| Commit hash | _not yet_ |
+| Operationalisation frozen on | 2026-11-05, before any test-split run |
+| Commit hash | Parent `798f9eeff510eb862f1a19aa9e139e9421a64102`; the freeze commit itself is the git tag `prereg-freeze` |
+| Final configs | `configs/final/*.yaml` (15): R0-R3 baselines, M-a1, M-a2, M-b at R3, M-c at R1, for `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gpt-oss-20b`; R4 not run (exploratory) |
+| Primary analysis set | H1 and H3: answers whose retrieved context states the current value (section 5); all answers as sensitivity |
+| Known open items at freeze | Judge validation on the test answers (about 100, after the final run) and the second labeller are still to do; the gpt-oss-20b R3 dev mitigation runs were not completed; mixed-effects H2 model not fitted (fallback reported) |
 | External registration (optional, e.g. OSF / AsPredicted) | _not yet_ |
 
 ### Benchmark freeze (milestone 2e)
