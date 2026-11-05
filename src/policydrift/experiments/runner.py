@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -88,6 +89,26 @@ def _documents_in(
     return "en" if cfg.doc_language == "english" else doc_language(item, lang, versions)
 
 
+def corrupted_dates(
+    chunks: Sequence[Chunk], cfg: ExperimentConfig
+) -> dict[str, tuple[date | None, date | None]]:
+    """Effective windows replaced for a hash-chosen share of chunks (M-c robustness test)."""
+    if cfg.date_corruption == "none" or cfg.date_corruption_share == 0.0:
+        return {}
+    out: dict[str, tuple[date | None, date | None]] = {}
+    for c in chunks:
+        digest = hashlib.sha256(f"{cfg.seed}|{c.chunk_id}".encode()).digest()
+        if int.from_bytes(digest[:8], "big") / 2**64 >= cfg.date_corruption_share:
+            continue
+        if cfg.date_corruption == "missing":
+            out[c.chunk_id] = (None, None)
+        elif c.effective_to is not None:  # expired chunk made to look in force
+            out[c.chunk_id] = (c.effective_from, None)
+        else:  # in-force chunk made to look expired
+            out[c.chunk_id] = (c.effective_from, cfg.as_of - timedelta(days=1))
+    return out
+
+
 def select_context(
     retriever: Retriever,
     item: BenchItem,
@@ -104,7 +125,10 @@ def select_context(
     if condition == "R1":
         dl = _documents_in(item, lang, [cur], cfg)
         as_of = cfg.as_of if cfg.mitigation == "M-c" else None
-        hits = retriever.search(question, cfg.k, Filters(language=dl, as_of=as_of))
+        flt = Filters(
+            language=dl, as_of=as_of, date_override=corrupted_dates(retriever.chunks, cfg)
+        )
+        hits = retriever.search(question, cfg.k, flt)
         return Context([h.chunk for h in hits], dl)
     if condition == "R2":
         dl = _documents_in(item, lang, [cur], cfg)

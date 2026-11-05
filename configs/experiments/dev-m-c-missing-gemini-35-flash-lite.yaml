@@ -1,0 +1,16 @@
+# Dev robustness run (exploratory): M-c with missing dates on 50% of chunks.
+name: dev-m-c-missing-gemini-35-flash-lite
+split: dev
+models: [gemini-35-flash-lite]
+languages: [en, hi, gu]
+conditions: [R1]
+mitigation: M-c
+date_corruption: missing
+date_corruption_share: 0.5
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

@@ -26,6 +26,11 @@ class ExperimentConfig(BaseModel):
     mitigation: Mitigation = "none"
     # "Today" for the mitigations. Fixed in the config so a rerun is reproducible.
     as_of: date = date(2026, 11, 1)
+    # Robustness test for M-c (exploratory): corrupt the effective dates of this share of chunks,
+    # chosen by a hash of (seed, chunk id). "missing" drops both dates; "wrong" inverts the window
+    # (expired chunks look in force, in-force chunks look expired).
+    date_corruption: Literal["none", "missing", "wrong"] = "none"
+    date_corruption_share: float = Field(default=0.0, ge=0.0, le=1.0)
     k: int = Field(default=4, ge=1)  # chunks for R1 and R2
     k_each: int = Field(default=2, ge=1)  # chunks per version for R3, R4 and X
     # "english": every question language is answered over the same English passages, so the
@@ -47,6 +52,8 @@ class ExperimentConfig(BaseModel):
         allowed = {"R1", "R3"} if self.mitigation != "none" else set(self.conditions)
         if not set(self.conditions) <= allowed:
             raise ValueError(f"{self.mitigation} is only defined for conditions R1 and R3")
+        if self.date_corruption != "none" and self.mitigation != "M-c":
+            raise ValueError("date_corruption only applies to M-c")
         return self
 
 

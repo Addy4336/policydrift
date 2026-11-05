@@ -1,0 +1,13 @@
+# Dev baseline, gpt-oss-20b only: finishes the answers that came back empty.
+name: dev-baseline-oss20b-r1
+split: dev
+models: [groq-gpt-oss-20b]
+languages: [en, hi, gu]
+conditions: [R1]
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

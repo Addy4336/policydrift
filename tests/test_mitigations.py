@@ -94,3 +94,28 @@ def test_mitigations_are_limited_to_r1_and_r3() -> None:
         ExperimentConfig(name="t", models=["m"], conditions=["R1", "R2"], mitigation="M-a1")
     ok = ExperimentConfig(name="t", models=["m"], conditions=["R1", "R3"], mitigation="M-b")
     assert ok.as_of == TODAY
+
+
+def test_date_corruption_is_deterministic_and_inverts_windows() -> None:
+    from datetime import date
+
+    from policydrift.experiments.config import ExperimentConfig
+    from policydrift.experiments.runner import corrupted_dates
+    from policydrift.ingest.build import Chunk
+
+    def chunk(i: int, end: date | None) -> Chunk:
+        return Chunk.model_construct(
+            chunk_id=f"c{i}", effective_from=date(2020, 1, 1), effective_to=end
+        )
+
+    chunks = [chunk(i, date(2024, 1, 1) if i % 2 else None) for i in range(200)]
+    base = {"name": "t", "models": ["m"], "conditions": ["R1"], "mitigation": "M-c"}
+    assert corrupted_dates(chunks, ExperimentConfig(**base)) == {}  # type: ignore[arg-type]
+    miss = ExperimentConfig(**base, date_corruption="missing", date_corruption_share=0.5)  # type: ignore[arg-type]
+    out = corrupted_dates(chunks, miss)
+    assert out == corrupted_dates(chunks, miss)
+    assert 60 < len(out) < 140 and set(out.values()) == {(None, None)}
+    wrong = ExperimentConfig(**base, date_corruption="wrong", date_corruption_share=1.0)  # type: ignore[arg-type]
+    flipped = corrupted_dates(chunks, wrong)
+    assert flipped["c1"] == (date(2020, 1, 1), None)  # expired -> looks in force
+    assert flipped["c0"][1] == date(2026, 10, 31)  # in force -> looks expired

@@ -1,0 +1,16 @@
+# Dev robustness run (exploratory): M-c with wrong dates on 25% of chunks.
+name: dev-m-c-wrong-gemini-flash-lite
+split: dev
+models: [gemini-flash-lite]
+languages: [en, hi, gu]
+conditions: [R1]
+mitigation: M-c
+date_corruption: wrong
+date_corruption_share: 0.25
+doc_language: english
+k: 4
+k_each: 2
+passage_order: counterbalanced
+max_tokens: 2048
+seed: 20261101
+judge_model: groq-gpt-oss

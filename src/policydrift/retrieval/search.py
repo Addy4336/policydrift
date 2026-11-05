@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from dataclasses import dataclass
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
@@ -28,6 +28,8 @@ class Filters:
     versions: frozenset[str] | None = None  # explicit version ids
     as_of: date | None = None  # keep chunks whose effective window contains this date
     current_only: bool = False  # keep only each scheme's open-ended (current) version
+    # Robustness tests only: chunk_id -> (effective_from, effective_to) replacing the stored window.
+    date_override: Mapping[str, tuple[date | None, date | None]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -47,9 +49,12 @@ def chunk_matches(chunk: Chunk, flt: Filters) -> bool:
     if flt.current_only and chunk.effective_to is not None:
         return False
     if flt.as_of is not None:
-        if chunk.effective_from is not None and chunk.effective_from > flt.as_of:
+        start, end = flt.date_override.get(
+            chunk.chunk_id, (chunk.effective_from, chunk.effective_to)
+        )
+        if start is not None and start > flt.as_of:
             return False
-        if chunk.effective_to is not None and flt.as_of > chunk.effective_to:
+        if end is not None and flt.as_of > end:
             return False
     return True
 
