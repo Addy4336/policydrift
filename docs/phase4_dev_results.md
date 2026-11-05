@@ -16,13 +16,14 @@ Outdated-answer rate on **matched answers** (an answer counts only if both the b
 | M-a2 | gemini-3.5-flash-lite | 84 | 19% | 18% | 1 | 0 | 1.0 | 940 |
 | M-b conflict checker | gemini-3.1-flash-lite | 79 | 13% | 8% | 4 | 0 | 2.1 | 1974 |
 | M-b | gemini-3.5-flash-lite | 84 | 19% | 11% | 7 | 0 | 2.1 | 1981 |
+| M-b | gpt-oss-20b | 69 | 3% | 0% | 2 | 0 | 2.2 | 2618 |
 
 Baseline mean tokens per answer: 792 (3.1), 839 (3.5), 1040 (gpt-oss-20b).
 
 ## What the dev numbers say
 
 - **M-c removes the stale answers, by construction.** The filter drops chunks whose effective window excludes the as-of date, so the old version cannot reach the model. This holds only while the effective dates are correct. The pre-registered robustness test (missing or wrong dates) is exploratory and has not been run.
-- **M-b roughly halves the rate** (pooled 16% to 9% over the two Gemini models, 11 fixed and 0 broken) at about 2.1 calls and 2.4x the tokens per answer.
+- **M-b roughly halves the rate** (pooled 12% to 6% over all three models, 13 fixed and 0 broken; 16% to 9% over the two Gemini models) at about 2.1 calls and 2.4x the tokens per answer.
 - **M-a1 does nothing measurable.** Stating today's date and asking for the rule in force today changed 1 answer for the better and 2 for the worse.
 - **M-a2 barely helps.** Pooled over the two Gemini models 16% to 15% (3 fixed, 1 broken). Prompt-only mitigations (M-a1, M-a2) do not fix the problem on dev.
 - **gpt-oss-20b has little room to improve.** Its baseline R1 rate is 3% on the items it answered, so it cannot show a mitigation effect here.
@@ -33,4 +34,4 @@ Baseline mean tokens per answer: 792 (3.1), 839 (3.5), 1040 (gpt-oss-20b).
 - gpt-oss-20b's baseline covers 24 of 28 items, hence the smaller n.
 - gemini-3.1-flash-lite M-c now has all 84 answers (gap-filled by a rerun).
 - Latency is not reported here: recorded latencies mix cached and uncached calls and free-tier waits. Phase 5 computes it from uncached calls only, as pre-registered.
-- Not yet done: gpt-oss-20b M-b (restarted, 21 of 84 answers so far; Groq is slow), M-a2 for gpt-oss-20b, and the secondary R3 runs.
+- Not run: M-a2 for gpt-oss-20b (baseline too low to matter) and the secondary R3 runs. Both are skipped for the dev stage and reported as not done.
