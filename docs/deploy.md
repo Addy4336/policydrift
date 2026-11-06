@@ -1,43 +1,38 @@
 # Deploying the demo on free tiers
 
-The API runs on a **Hugging Face Space** (Docker SDK, free CPU: 2 vCPU, 16 GB RAM, which fits the
-embedding model) and the web app on **Vercel** (Hobby). Answers use Groq's free API. Nothing here
-needs a paid plan.
+Live: web https://policydrift-lime.vercel.app, API https://policydrift-api.vercel.app (`/api/health`).
 
-## API: Hugging Face Space
+Both run on Vercel's free Hobby plan as two projects. The API is a Python (FastAPI) function. A
+serverless function cannot load the e5-base embedding model, so the hosted demo uses the BM25
+retriever in `src/policydrift/demo/lexical.py`; questions in Hindi and Gujarati are translated and
+routed to a scheme first. The research experiments always use e5-base.
 
-1. Create a Space at https://huggingface.co/new-space: SDK **Docker**, hardware **CPU basic (free)**.
-2. In the Space settings add the secret `GROQ_API_KEY`, and the variable
-   `POLICYDRIFT_CORS=https://<your-vercel-app>.vercel.app`.
-3. Push this repository to the Space. The Space reads `Dockerfile` at the root; its README needs the
-   front matter below, so create the Space's README with it when you create the Space:
-
-```yaml
----
-title: PolicyDrift API
-sdk: docker
-app_port: 7860
----
-```
+## API (`policydrift-api`)
 
 ```bash
-git remote add space https://huggingface.co/spaces/<user>/policydrift-api
-git push space main
+uv run --no-sync python scripts/build_api_bundle.py      # writes deploy/vercel-api/ (about 1 MB)
+cd deploy/vercel-api && npx vercel deploy --prod --yes --name policydrift-api
 ```
 
-The build downloads the model and embeds the 440 chunks once (a few minutes). Check
-`https://<user>-policydrift-api.hf.space/api/health`. Free Spaces sleep after a period of
-inactivity and wake on the next request (about a minute).
+Project environment variables (Vercel dashboard, Settings, Environment Variables):
 
-## Web: Vercel
+| Name | Value |
+|---|---|
+| `GROQ_API_KEY` | your Groq key (type Sensitive). Add it yourself; it is never stored in the repository |
+| `POLICYDRIFT_CORS` | `https://policydrift-lime.vercel.app,http://localhost:3000` |
 
-1. Import the repository in Vercel, set **Root Directory** to `web`.
-2. Set `NEXT_PUBLIC_API_URL=https://<user>-policydrift-api.hf.space`.
-3. Deploy. To publish a demo without a running backend, set `NEXT_PUBLIC_DEMO_FIXTURES=1` instead.
+The bundle sets `POLICYDRIFT_RETRIEVER=lexical` and keeps the LLM cache in `/tmp`. After changing an
+environment variable, redeploy with the command above.
 
-## Local container check
+## Web (`policydrift`)
 
 ```bash
-docker build -t policydrift-api .
-docker run -p 7860:7860 -e GROQ_API_KEY=... policydrift-api
+cd web && npx vercel deploy --prod --yes --name policydrift --build-env NEXT_PUBLIC_API_URL=https://policydrift-api.vercel.app
 ```
+
+`NEXT_PUBLIC_API_URL` is also stored on the project for later builds.
+
+## Alternative: Hugging Face Space with the dense retriever
+
+The `Dockerfile` at the root builds the API with e5-base for a free Hugging Face Space (Docker SDK,
+CPU basic, port 7860; add `GROQ_API_KEY` as a Space secret). It has not been built yet.
