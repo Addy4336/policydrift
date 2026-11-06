@@ -1,0 +1,214 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f6f6f3;
+  --surface: #ffffff;
+  --surface-2: #f0f1ed;
+  --border: #dcdfd9;
+  --border-strong: #c3c8c0;
+  --text: #1a1e23;
+  --muted: #59616c;
+  --accent: #1d5a85;
+  --accent-strong: #154766;
+  --accent-soft: #e5eef5;
+  --ok: #1d7347;
+  --ok-soft: #e4f2e9;
+  --warn: #855600;
+  --warn-soft: #fbf2df;
+  --warn-border: #e2c37c;
+  --danger: #a1382a;
+  --danger-soft: #fae9e6;
+  --focus: #1d5a85;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1115;
+    --surface: #151a20;
+    --surface-2: #1b2129;
+    --border: #29303a;
+    --border-strong: #3a4350;
+    --text: #e5e8eb;
+    --muted: #9ba4af;
+    --accent: #79b4df;
+    --accent-strong: #9cc8ea;
+    --accent-soft: #15283a;
+    --ok: #63c592;
+    --ok-soft: #12291d;
+    --warn: #e6b862;
+    --warn-soft: #272012;
+    --warn-border: #66501f;
+    --danger: #ee8a7c;
+    --danger-soft: #2c1714;
+    --focus: #9cc8ea;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-border: var(--warn-border);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: var(--font-inter), var(--font-deva), var(--font-gujr), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* Devanagari and Gujarati need more line height than Latin text. */
+:lang(hi),
+:lang(gu) {
+  line-height: 1.75;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+  }
+}
+
+@keyframes flash-ring {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent);
+  }
+  100% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+.flash {
+  animation: flash-ring 900ms ease-out 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Rendered markdown (answers and the research results). */
+.md {
+  line-height: 1.65;
+}
+.md > * + * {
+  margin-top: 0.85em;
+}
+.md h1 {
+  font-size: 1.35rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.md h2 {
+  font-size: 1.1rem;
+  font-weight: 650;
+  margin-top: 2rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+.md h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+}
+.md p,
+.md li {
+  color: var(--text);
+}
+.md ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.md ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.md a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--surface-2);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+}
+.md strong {
+  font-weight: 650;
+}
+.md .table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.md table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.md thead th {
+  background: var(--surface-2);
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.md th,
+.md td {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.md tbody tr:last-child td {
+  border-bottom: 0;
+}
+.md tbody tr:hover td {
+  background: var(--surface-2);
+}
+.md td {
+  white-space: nowrap;
+}

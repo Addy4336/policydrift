@@ -8,6 +8,8 @@ Run from the repository root:
 from __future__ import annotations
 
 import os
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
@@ -23,7 +25,17 @@ from policydrift.llm import LLMError
 ROOT = Path(os.environ.get("POLICYDRIFT_ROOT", Path(__file__).resolve().parents[1]))
 ORIGINS = os.environ.get("POLICYDRIFT_CORS", "http://localhost:3000,http://127.0.0.1:3000")
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    """Load the embedding model and vectors once at startup, not on the first question."""
+    if os.environ.get("POLICYDRIFT_WARMUP", "1") == "1":
+        service().retriever.search("warm-up", 1)
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="PolicyDrift API",
     version="0.1.0",
     description=(

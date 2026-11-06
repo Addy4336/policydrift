@@ -63,12 +63,45 @@ NO_ANSWER_HINTS = (
     "માહિતી નથી",
 )
 
+# Interface messages in the question's language (Hindi and Gujarati need a native review).
+MESSAGES: dict[str, dict[str, str]] = {
+    "en": {
+        "no_passage": "No official passage in force on this date matched the question.",
+        "invalid_marker": "The answer cites a passage number that was not provided.",
+        "uncited": "The answer does not cite any source; treat it with care.",
+        "unverified": "Some figures were not found in the cited sources: {values}",
+        "older": "An older version ({v}) applied until {end}. The answer uses the version in "
+        "force on {day} ({cur}).",
+        "newer": "A newer version ({v}) takes effect from {start}.",
+    },
+    "hi": {
+        "no_passage": "इस तारीख़ को लागू कोई आधिकारिक अंश इस प्रश्न से मेल नहीं खाया।",
+        "invalid_marker": "उत्तर ऐसे अंश संख्या का हवाला देता है जो दिया ही नहीं गया था।",
+        "uncited": "उत्तर किसी स्रोत का हवाला नहीं देता; सावधानी से देखें।",
+        "unverified": "कुछ आँकड़े उद्धृत स्रोतों में नहीं मिले: {values}",
+        "older": "पुराना संस्करण ({v}) {end} तक लागू था। उत्तर {day} को लागू संस्करण ({cur}) पर आधारित है।",
+        "newer": "नया संस्करण ({v}) {start} से लागू होता है।",
+    },
+    "gu": {
+        "no_passage": "આ તારીખે અમલમાં રહેલો કોઈ સત્તાવાર અંશ આ પ્રશ્ન સાથે મેળ ખાતો નથી.",
+        "invalid_marker": "જવાબ એવા અંશ નંબરનો ઉલ્લેખ કરે છે જે આપવામાં આવ્યો ન હતો.",
+        "uncited": "જવાબમાં કોઈ સ્રોતનો ઉલ્લેખ નથી; સાવધાનીથી જુઓ.",
+        "unverified": "કેટલાક આંકડા ઉલ્લેખિત સ્રોતોમાં મળ્યા નથી: {values}",
+        "older": "જૂનું સંસ્કરણ ({v}) {end} સુધી અમલમાં હતું. જવાબ {day} ના રોજ અમલમાં રહેલા "
+        "સંસ્કરણ ({cur}) પર આધારિત છે.",
+        "newer": "નવું સંસ્કરણ ({v}) {start} થી અમલમાં આવે છે.",
+    },
+}
+
 
 @dataclass(frozen=True)
 class DemoSettings:
     model_key: str = "groq-gpt-oss"  # key in configs/models.yaml
-    k: int = 4  # passages shown to the model
-    k_conflicts: int = 8  # unfiltered search depth for rule-change flags
+    # Passages shown to the model. Retrieval is limited to one scheme, so 8 passages stay on
+    # topic; with 4, the passage stating the current SVANidhi loan amounts is often missed (the
+    # retrieval failure the dev split exposed).
+    k: int = 8
+    k_conflicts: int = 12  # search depth for scheme routing and rule-change flags
     doc_language: str = "en"  # passages in English for every question language, as in the study
     max_tokens: int = 2048
 
@@ -207,9 +240,10 @@ class DemoService:
         query = self.search_query(question, language)
         shown, others = self.retrieve(query, day, question)
         warnings: list[str] = []
+        m = MESSAGES[language]
         if not shown:
             answer, cached = "", False
-            warnings.append("No official passage in force on this date matched the question.")
+            warnings.append(m["no_passage"])
         else:
             request = LLMRequest(
                 provider=self.provider,
@@ -225,20 +259,19 @@ class DemoService:
                 purpose="demo",
             )
             response = self.client.complete(request)
-            answer, cached = normalise_markers(response.text.strip()), response.cached
+            answer = normalise_markers(response.text.strip()).replace("**", "")
+            cached = response.cached
         latency_ms = round((time.monotonic() - started) * 1000)
 
         says_no = any(h in answer.lower() for h in NO_ANSWER_HINTS)
         report = validate(answer, [c.text for c in shown], says_no_answer=says_no)
         if report.invalid_markers:
-            warnings.append("The answer cites a passage number that was not provided.")
+            warnings.append(m["invalid_marker"])
         if report.uncited:
-            warnings.append("The answer does not cite any source; treat it with care.")
+            warnings.append(m["uncited"])
         unverified = [n.value for n in report.numbers if not n.verified]
         if unverified:
-            warnings.append(
-                "Some figures were not found in the cited sources: " + ", ".join(unverified)
-            )
+            warnings.append(m["unverified"].format(values=", ".join(unverified)))
 
         cited = report.cited or []
         citations = [self._citation(i, shown[i - 1], day) for i in range(1, len(shown) + 1)]
@@ -264,7 +297,7 @@ class DemoService:
             "latency_ms": latency_ms,
             "citations": citations,
             "rule_versions": rule_versions,
-            "conflicts": self._conflicts(others, shown, day),
+            "conflicts": self._conflicts(others, shown, day, language),
             "checks": {
                 "citations_valid": report.citations_valid,
                 "uncited": report.uncited,
@@ -296,8 +329,9 @@ class DemoService:
         }
 
     def _conflicts(
-        self, others: list[Chunk], shown: list[Chunk], day: date
+        self, others: list[Chunk], shown: list[Chunk], day: date, language: Language = "en"
     ) -> list[dict[str, Any]]:
+        m = MESSAGES[language]
         current = {c.scheme: c.version for c in shown}
         out: list[dict[str, Any]] = []
         seen: set[tuple[str, str]] = set()
@@ -307,14 +341,15 @@ class DemoService:
                 continue
             seen.add(key)
             if c.effective_to is not None and c.effective_to < day:
-                note = (
-                    f"An older version ({c.version}) applied until {c.effective_to.isoformat()}. "
-                    f"The answer uses the version in force on {day.isoformat()} "
-                    f"({current.get(c.scheme, '?')})."
+                note = m["older"].format(
+                    v=c.version,
+                    end=c.effective_to.isoformat(),
+                    day=day.isoformat(),
+                    cur=current.get(c.scheme, "?"),
                 )
             else:
                 start = c.effective_from.isoformat() if c.effective_from else "a later date"
-                note = f"A newer version ({c.version}) takes effect from {start}."
+                note = m["newer"].format(v=c.version, start=start)
             out.append(
                 {
                     "scheme": c.scheme,
@@ -331,15 +366,18 @@ class DemoService:
         return out
 
     def examples(self) -> dict[str, list[str]]:
-        """Example questions from the dev split only (the test split stays sealed)."""
+        """Example questions from the dev split only (the test split stays sealed), one per
+        scheme so the chips show the range of schemes covered."""
         from policydrift.bench.split import load_items
 
         out: dict[str, list[str]] = {"en": [], "hi": [], "gu": []}
+        seen: set[str] = set()
         for item in load_items(self.root, "dev", final=False):
-            if item.style != "direct":
+            if item.style != "direct" or item.scheme in seen:
                 continue
+            seen.add(item.scheme)
             for lang in out:
                 q = item.questions.get(lang)
-                if q and len(out[lang]) < 6 and q not in out[lang]:
+                if q:
                     out[lang].append(q)
         return out

@@ -112,6 +112,7 @@ def test_ask_on_a_past_date_uses_the_old_version() -> None:
 
 
 def test_api_endpoints(monkeypatch: Any) -> None:
+    monkeypatch.setenv("POLICYDRIFT_WARMUP", "0")
     import api.main as api
 
     svc, _ = _service()
