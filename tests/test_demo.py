@@ -150,3 +150,22 @@ def test_routing_by_scheme_name_in_any_language() -> None:
 def test_non_breaking_hyphen_years_are_dates() -> None:
     report = validate("₹1.25 lakh in FY 2024\u201125 [1]", ["The limit is Rs 1.25 lakh."])
     assert [n.value for n in report.numbers] == ["125,000"]
+
+
+def test_declined_answer_shows_no_rule_version_or_sources() -> None:
+    svc, client = _service()
+    client.complete = lambda request: LLMResponse(  # type: ignore[method-assign]
+        text="The provided passages do not contain this.", provider="groq", model="m"
+    )
+    out = svc.ask("What do the 2026 census rules say?", "en", date(2026, 11, 1))
+    assert out["declined"] and out["citations"] == [] and out["rule_versions"] == []
+    assert out["conflicts"] == [] and "covers" in out["warnings"][0]
+
+
+def test_no_answer_token_is_detected_and_stripped() -> None:
+    svc, client = _service()
+    client.complete = lambda request: LLMResponse(  # type: ignore[method-assign]
+        text="NO_ANSWER: આપેલ કોઈપણ પાસેજમાં આ નથી.", provider="groq", model="m"
+    )
+    out = svc.ask("Shipping rules 2026?", "gu", date(2026, 11, 1))
+    assert out["declined"] and out["answer"].startswith("આપેલ") and out["rule_versions"] == []

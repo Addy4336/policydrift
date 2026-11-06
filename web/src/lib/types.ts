@@ -72,6 +72,8 @@ export interface AskResponse {
   conflicts: Conflict[];
   checks: Checks;
   warnings: string[];
+  declined?: boolean;
+  search_query?: string;
 }
 
 export interface SchemeVersion {

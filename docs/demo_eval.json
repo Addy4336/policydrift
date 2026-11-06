@@ -1,0 +1,491 @@
+[
+ {
+  "id": "A1",
+  "kind": "in-scope",
+  "language": "en",
+  "as_of": null,
+  "question": "How many days of guaranteed work does the rural employment guarantee law now give each household in a year?",
+  "expected": [
+   "125"
+  ],
+  "note": "current v2; old 100",
+  "status": 200,
+  "seconds": 2.1,
+  "answer": "The law now guarantees 125 days of wage employment per rural household each financial year[1]. This expands the earlier entitlement and strengthens livelihood security for rural families.",
+  "search_query": "How many days of guaranteed work does the rural employment guarantee law now give each household in a year?",
+  "rule_versions": [
+   {
+    "scheme": "rural-employment-guarantee",
+    "scheme_name": "Rural employment guarantee (MGNREGA, then VB-G RAM G)",
+    "version": "v2",
+    "effective_from": "2026-07-01",
+    "effective_to": null
+   }
+  ],
+  "conflicts": [
+   "An older version (v1) applied until 2026-06-30. The answer uses the version in force on 2026-11-06 (v2)."
+  ],
+  "numbers": [
+   {
+    "value": "125",
+    "verified": true,
+    "cited_in": [
+     1
+    ]
+   }
+  ],
+  "warnings": [],
+  "expected_found": [
+   "125"
+  ]
+ },
+ {
+  "id": "A2",
+  "kind": "in-scope",
+  "language": "hi",
+  "as_of": null,
+  "question": "सूचीबद्ध शेयरों पर अल्पकालिक पूंजीगत लाभ (धारा 111A) पर अभी कर की दर क्या है?",
+  "expected": [
+   "20"
+  ],
+  "note": "current 20%; old 15%",
+  "status": 200,
+  "seconds": 2.6,
+  "answer": "सूचीबद्ध शेयरों (धारा 111A) पर अल्पकालिक पूंजीगत लाभ की वर्तमान कर दर 20 % है [1]। यह दर पहले 15 % थी, जिसे नई व्यवस्था के तहत 20 % कर दिया गया है [1]।",
+  "search_query": "What is the current tax rate on short-term capital gains (Section 111A) on listed shares?",
+  "rule_versions": [
+   {
+    "scheme": "capital-gains",
+    "scheme_name": "Capital gains tax rates and holding periods (Income-tax Act)",
+    "version": "v2",
+    "effective_from": "2024-07-23",
+    "effective_to": null
+   }
+  ],
+  "conflicts": [
+   "पुराना संस्करण (v1) 2024-07-22 तक लागू था। उत्तर 2026-11-06 को लागू संस्करण (v2) पर आधारित है।"
+  ],
+  "numbers": [
+   {
+    "value": "20",
+    "verified": true,
+    "cited_in": [
+     1
+    ]
+   },
+   {
+    "value": "15",
+    "verified": true,
+    "cited_in": [
+     1
+    ]
+   }
+  ],
+  "warnings": [],
+  "expected_found": [
+   "20"
+  ]
+ },
+ {
+  "id": "A3",
+  "kind": "in-scope",
+  "language": "gu",
+  "as_of": null,
+  "question": "પીએમ ઉજ્જવલા યોજના હેઠળ દરેક LPG સિલિન્ડર પર કેટલી સબસિડી મળે છે?",
+  "expected": [
+   "300"
+  ],
+  "note": "current ₹300; old ₹200",
+  "status": 200,
+  "seconds": 2.6,
+  "answer": "પ્રત્યેક LPG સિલિન્ડર માટે PMUY હેઠળ સરકાર દ્વારા ₹300 ની સીધી લાભ‑ટ્રાન્સફર (સબસિડી) આપવામાં આવે છે [1].",
+  "search_query": "Under the PM Ujjwala Yojana, how much subsidy is given per LPG cylinder?",
+  "rule_versions": [
+   {
+    "scheme": "pmuy-subsidy",
+    "scheme_name": "PM Ujjwala Yojana targeted LPG subsidy",
+    "version": "v4",
+    "effective_from": "2026-04-01",
+    "effective_to": null
+   }
+  ],
+  "conflicts": [
+   "જૂનું સંસ્કરણ (v2) 2025-03-31 સુધી અમલમાં હતું. જવાબ 2026-11-06 ના રોજ અમલમાં રહેલા સંસ્કરણ (v4) પર આધારિત છે.",
+   "જૂનું સંસ્કરણ (v3) 2026-03-31 સુધી અમલમાં હતું. જવાબ 2026-11-06 ના રોજ અમલમાં રહેલા સંસ્કરણ (v4) પર આધારિત છે.",
+   "જૂનું સંસ્કરણ (v1) 2023-10-04 સુધી અમલમાં હતું. જવાબ 2026-11-06 ના રોજ અમલમાં રહેલા સંસ્કરણ (v4) પર આધારિત છે."
+  ],
+  "numbers": [
+   {
+    "value": "300",
+    "verified": true,
+    "cited_in": [
+     1
+    ]
+   }
+  ],
+  "warnings": [],
+  "expected_found": [
+   "300"
+  ]
+ },
+ {
+  "id": "A4",
+  "kind": "past-date",
+  "language": "en",
+  "as_of": "2023-06-01",
+  "question": "What was the maximum loan under PM Mudra Yojana?",
+  "expected": [
+   "10 lakh",
+   "1,000,000",
+   "10,00,000"
+  ],
+  "note": "v1 in force on 2023-06-01: ₹10 lakh",
+  "status": 200,
+  "seconds": 1.9,
+  "answer": "The maximum loan amount that can be sanctioned under the Pradhan Mantri Mudra Yojana is ₹10 lakh per borrower[5]. This ceiling applies to collateral‑free micro‑credit for non‑corporate, non‑farm small and micro‑entrepreneurs.",
+  "search_query": "What was the maximum loan under PM Mudra Yojana?",
+  "rule_versions": [
+   {
+    "scheme": "pm-mudra",
+    "scheme_name": "PM Mudra Yojana loan limit",
+    "version": "v1",
+    "effective_from": "2015-04-08",
+    "effective_to": "2024-10-23"
+   }
+  ],
+  "conflicts": [
+   "A newer version (v2) takes effect from 2024-10-24."
+  ],
+  "numbers": [
+   {
+    "value": "1,000,000",
+    "verified": true,
+    "cited_in": [
+     5
+    ]
+   }
+  ],
+  "warnings": [],
+  "expected_found": [
+   "10 lakh"
+  ]
+ },
+ {
+  "id": "A5",
+  "kind": "past-date",
+  "language": "hi",
+  "as_of": "2023-01-01",
+  "question": "पीएम स्वनिधि योजना में दूसरी किस्त का ऋण कितना है?",
+  "expected": [
+   "20,000",
+   "20000"
+  ],
+  "note": "v1: ₹20,000",
+  "status": 200,
+  "seconds": 6.1,
+  "answer": "दूसरी किस्त (दूसरा ऋण) का आकार ₹20,000 है [1]।",
+  "search_query": "What is the loan amount of the second installment in the PM Swarnidhi Yojana?",
+  "rule_versions": [
+   {
+    "scheme": "pm-svanidhi",
+    "scheme_name": "PM SVANidhi street-vendor loans",
+    "version": "v1",
+    "effective_from": "2022-04-27",
+    "effective_to": "2025-08-26"
+   }
+  ],
+  "conflicts": [
+   "नया संस्करण (v2) 2025-08-27 से लागू होता है।"
+  ],
+  "numbers": [
+   {
+    "value": "20,000",
+    "verified": true,
+    "cited_in": [
+     1
+    ]
+   }
+  ],
+  "warnings": [],
+  "expected_found": [
+   "20,000"
+  ]
+ },
+ {
+  "id": "A6",
+  "kind": "in-scope",
+  "language": "gu",
+  "as_of": null,
+  "question": "પીએમ સ્વનિધિ યોજના હેઠળ બીજી લોન કેટલી મળે છે?",
+  "expected": [
+   "25,000",
+   "25000"
+  ],
+  "note": "current ₹25,000",
+  "status": 200,
+  "seconds": 13.3,
+  "answer": "PM SVANidhi યોજના હેઠળ બીજી (દ્વિતીય) લોનનું મહત્તમ રકમ ₹ 25,000 છે [1]. આ સુધારેલ રકમ અગાઉની ₹20,000ની તુલનામાં વધારીને આપવામાં આવી છે.",
+  "search_query": "How much second loan is available under the PM Swarnidhi Yojana?",
+  "rule_versions": [
+   {
+    "scheme": "pm-svanidhi",
+    "scheme_name": "PM SVANidhi street-vendor loans",
+    "version": "v2",
+    "effective_from": "2025-08-27",
+    "effective_to": null
+   }
+  ],
+  "conflicts": [
+   "જૂનું સંસ્કરણ (v1) 2025-08-26 સુધી અમલમાં હતું. જવાબ 2026-11-06 ના રોજ અમલમાં રહેલા સંસ્કરણ (v2) પર આધારિત છે."
+  ],
+  "numbers": [
+   {
+    "value": "25,000",
+    "verified": true,
+    "cited_in": [
+     1
+    ]
+   },
+   {
+    "value": "20,000",
+    "verified": true,
+    "cited_in": [
+     1
+    ]
+   }
+  ],
+  "warnings": [],
+  "expected_found": [
+   "25,000"
+  ]
+ },
+ {
+  "id": "A7",
+  "kind": "in-scope",
+  "language": "en",
+  "as_of": null,
+  "question": "What is the long-term capital gains tax rate on gold and unlisted assets now?",
+  "expected": [
+   "12.5"
+  ],
+  "note": "current 12.5%; old 20%",
+  "status": 200,
+  "seconds": 15.3,
+  "answer": "The long‑term capital gains tax rate on gold and on unlisted assets is 12.5 % (without indexation)[4]. This rate applies to “other long‑term capital gains on all assets” under the new regime.",
+  "search_query": "What is the long-term capital gains tax rate on gold and unlisted assets now?",
+  "rule_versions": [
+   {
+    "scheme": "capital-gains",
+    "scheme_name": "Capital gains tax rates and holding periods (Income-tax Act)",
+    "version": "v2",
+    "effective_from": "2024-07-23",
+    "effective_to": null
+   }
+  ],
+  "conflicts": [
+   "An older version (v1) applied until 2024-07-22. The answer uses the version in force on 2026-11-06 (v2)."
+  ],
+  "numbers": [
+   {
+    "value": "12.5",
+    "verified": true,
+    "cited_in": [
+     4
+    ]
+   }
+  ],
+  "warnings": [],
+  "expected_found": [
+   "12.5"
+  ]
+ },
+ {
+  "id": "A8",
+  "kind": "in-scope",
+  "language": "en",
+  "as_of": null,
+  "question": "How long must gold be held to count as a long-term capital asset?",
+  "expected": [
+   "24"
+  ],
+  "note": "current 24 months; old 36",
+  "status": 200,
+  "seconds": 15.9,
+  "answer": "Gold must be held for 24 months (2 years) to be classified as a long‑term capital asset[6]. This reflects the reduction of the holding period for gold from the earlier 36 months to the current 24 months.",
+  "search_query": "How long must gold be held to count as a long-term capital asset?",
+  "rule_versions": [
+   {
+    "scheme": "capital-gains",
+    "scheme_name": "Capital gains tax rates and holding periods (Income-tax Act)",
+    "version": "v2",
+    "effective_from": "2024-07-23",
+    "effective_to": null
+   }
+  ],
+  "conflicts": [
+   "An older version (v1) applied until 2024-07-22. The answer uses the version in force on 2026-11-06 (v2)."
+  ],
+  "numbers": [
+   {
+    "value": "24",
+    "verified": true,
+    "cited_in": [
+     6
+    ]
+   },
+   {
+    "value": "2",
+    "verified": false,
+    "cited_in": []
+   },
+   {
+    "value": "36",
+    "verified": true,
+    "cited_in": [
+     6
+    ]
+   }
+  ],
+  "warnings": [
+   "Some figures were not found in the cited sources: 2"
+  ],
+  "expected_found": [
+   "24"
+  ]
+ },
+ {
+  "id": "F1",
+  "kind": "false-premise",
+  "language": "en",
+  "as_of": null,
+  "question": "Why did the government reduce the PM Mudra loan limit to Rs 5 lakh in 2025?",
+  "expected": [
+   "20 lakh",
+   "2,000,000",
+   "20,00,000"
+  ],
+  "note": "should correct the premise: limit is ₹20 lakh",
+  "status": 200,
+  "seconds": 13.2,
+  "answer": "The assumption that the government reduced the PM Mudra loan limit to ₹5 lakh in 2025 is not supported by the passages. In fact, the finance minister announced an increase in the loan limit to ₹20 lakh during the Union Budget 2024‑25, and this higher limit took effect on 24 October 2024 [2].",
+  "search_query": "Why did the government reduce the PM Mudra loan limit to Rs 5 lakh in 2025?",
+  "rule_versions": [
+   {
+    "scheme": "pm-mudra",
+    "scheme_name": "PM Mudra Yojana loan limit",
+    "version": "v2",
+    "effective_from": "2024-10-24",
+    "effective_to": null
+   }
+  ],
+  "conflicts": [
+   "An older version (v1) applied until 2024-10-23. The answer uses the version in force on 2026-11-06 (v2)."
+  ],
+  "numbers": [
+   {
+    "value": "500,000",
+    "verified": false,
+    "cited_in": []
+   },
+   {
+    "value": "2,000,000",
+    "verified": true,
+    "cited_in": [
+     2
+    ]
+   }
+  ],
+  "warnings": [
+   "Some figures were not found in the cited sources: 500,000"
+  ],
+  "expected_found": [
+   "20 lakh"
+  ]
+ },
+ {
+  "id": "O1",
+  "kind": "out-of-scope",
+  "language": "en",
+  "as_of": null,
+  "question": "What specific modification did the Digital Personal Data Protection (Removal of Difficulties) Order, 2026 make to Section 9(1) regarding verifiable consent, and what is its exact effective date?",
+  "expected": [],
+  "note": "not in corpus: must decline",
+  "status": 200,
+  "seconds": 13.7,
+  "answer": "The provided passages do not contain any information about the Digital Personal Data Protection (Removal of Difficulties) Order, 2026 or its amendment to Section 9(1).",
+  "search_query": "What specific modification did the Digital Personal Data Protection (Removal of Difficulties) Order, 2026 make to Section 9(1) regarding verifiable consent, and what is its exact effective date?",
+  "rule_versions": [],
+  "conflicts": [],
+  "numbers": [],
+  "warnings": [
+   "The official releases in this assistant do not answer this question. It covers 14 schemes; see the Schemes page."
+  ],
+  "expected_found": []
+ },
+ {
+  "id": "O2",
+  "kind": "out-of-scope",
+  "language": "hi",
+  "as_of": null,
+  "question": "गृह मंत्रालय द्वारा 16 अक्टूबर 2026 को अधिसूचित जनगणना (संशोधन) नियम, 2026 के अनुसार, निजी क्षेत्र के पेशेवरों की किस विशिष्ट श्रेणी को अब प्रगणक के रूप में तैनात करने की अनुमति दी गई है?",
+  "expected": [],
+  "note": "not in corpus: must decline",
+  "status": 200,
+  "seconds": 15.9,
+  "answer": "प्रदान किए गए अंशों में गृह मंत्रालय द्वारा 16 अक्टूबर 2026 को अधिसूचित जनगणना (संशोधन) नियम, 2026 के बारे में कोई जानकारी नहीं है।",
+  "search_query": "According to the Census (Amendment) Rules, 2026 notified by the Ministry of Home Affairs on 16 October 2026, which specific category of private sector professionals is now permitted to be deployed as enumerators?",
+  "rule_versions": [],
+  "conflicts": [],
+  "numbers": [],
+  "warnings": [
+   "इस सहायक के आधिकारिक दस्तावेज़ इस प्रश्न का उत्तर नहीं देते। यह 14 योजनाओं को कवर करता है; योजनाएँ पृष्ठ देखें।"
+  ],
+  "expected_found": []
+ },
+ {
+  "id": "O3",
+  "kind": "out-of-scope",
+  "language": "gu",
+  "as_of": null,
+  "question": "મર્ચન્ટ શિપિંગ (રેગ્યુલેશન ઓફ એન્ટ્રી ઓફ શિપ્સ ઇનટુ કોસ્ટલ વોટર્સ) રૂલ્સ, 2026 વિદેશી ધ્વજવાળા જહાજો માટે કઈ મંજૂરીઓ ફરજિયાત બનાવે છે?",
+  "expected": [],
+  "note": "not in corpus: must decline",
+  "status": 200,
+  "seconds": 19.0,
+  "answer": "આપેલ પાઠોમાં મર્ચન્ટ શિપિંગ (રેગ્યુલેશન ઓફ એન્ટ્રી ઓફ શિપ્સ ઇનટુ કોસ્ટલ વોટર્સ) રૂલ્સ, 2026 સંબંધિત કોઈ માહિતી નથી.",
+  "search_query": "Merchant Shipping (Regulation of Entry of Ships into Coastal Waters) Rules, 2026 – what approvals are mandatory for foreign-flagged vessels?",
+  "rule_versions": [],
+  "conflicts": [],
+  "numbers": [],
+  "warnings": [
+   "આ સહાયકના સત્તાવાર દસ્તાવેજો આ પ્રશ્નનો જવાબ આપતા નથી. તે 14 યોજનાઓને આવરી લે છે; યોજનાઓ પેજ જુઓ."
+  ],
+  "expected_found": []
+ },
+ {
+  "id": "O4",
+  "kind": "out-of-scope",
+  "language": "en",
+  "as_of": null,
+  "question": "What is the exact short title and implementation timeline under the CBDT Gazette notification G.S.R. 198(E)?",
+  "expected": [],
+  "note": "not in corpus (near the tax schemes): must decline",
+  "status": 200,
+  "seconds": 14.2,
+  "answer": "The provided passages do not contain any information about the CBDT Gazette notification G.S.R. 198(E).",
+  "search_query": "What is the exact short title and implementation timeline under the CBDT Gazette notification G.S.R. 198(E)?",
+  "rule_versions": [],
+  "conflicts": [],
+  "numbers": [
+   {
+    "value": "198",
+    "verified": false,
+    "cited_in": []
+   }
+  ],
+  "warnings": [
+   "The official releases in this assistant do not answer this question. It covers 14 schemes; see the Schemes page."
+  ],
+  "expected_found": []
+ }
+]

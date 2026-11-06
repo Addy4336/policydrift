@@ -44,14 +44,20 @@ Language = Literal["en", "hi", "gu"]
 
 PROMPT = (
     "Use the passages below to answer. After every figure or rule you state, cite the passage "
-    "it comes from in square brackets, for example [1] or [2]. Use only these passages. If they "
-    "do not contain the answer, say so plainly and do not guess.\n\n{passages}\n\nQuestion: "
-    "{question}\n\nAnswer in {language_name}."
+    "it comes from in square brackets, for example [1] or [2]. Use only these passages; do not "
+    "guess.\n"
+    "- If the question assumes a figure or change that the passages contradict, correct it: say "
+    "the assumption is not supported and state what the passages say, with citations.\n"
+    "- Only if the passages say nothing relevant to the question at all, start your reply with "
+    "NO_ANSWER: and then say so in one sentence.\n\n"
+    "{passages}\n\nQuestion: {question}\n\n"
+    "Write the whole reply in {language_name}."
 )
 TRANSLATE_SYSTEM = (
     "Translate the user's question about an Indian government scheme into English. Keep scheme "
     "names and numbers as they are. Output only the English question, on one line."
 )
+NO_ANSWER_TOKEN = "NO_ANSWER"
 NO_ANSWER_HINTS = (
     "do not contain",
     "does not contain",
@@ -68,6 +74,8 @@ NO_ANSWER_HINTS = (
 MESSAGES: dict[str, dict[str, str]] = {
     "en": {
         "no_passage": "No official passage in force on this date matched the question.",
+        "not_covered": "The official releases in this assistant do not answer this question. It "
+        "covers {n} schemes; see the Schemes page.",
         "invalid_marker": "The answer cites a passage number that was not provided.",
         "uncited": "The answer does not cite any source; treat it with care.",
         "unverified": "Some figures were not found in the cited sources: {values}",
@@ -77,6 +85,8 @@ MESSAGES: dict[str, dict[str, str]] = {
     },
     "hi": {
         "no_passage": "इस तारीख़ को लागू कोई आधिकारिक अंश इस प्रश्न से मेल नहीं खाया।",
+        "not_covered": "इस सहायक के आधिकारिक दस्तावेज़ इस प्रश्न का उत्तर नहीं देते। यह {n} "
+        "योजनाओं को कवर करता है; योजनाएँ पृष्ठ देखें।",
         "invalid_marker": "उत्तर ऐसे अंश संख्या का हवाला देता है जो दिया ही नहीं गया था।",
         "uncited": "उत्तर किसी स्रोत का हवाला नहीं देता; सावधानी से देखें।",
         "unverified": "कुछ आँकड़े उद्धृत स्रोतों में नहीं मिले: {values}",
@@ -85,6 +95,8 @@ MESSAGES: dict[str, dict[str, str]] = {
     },
     "gu": {
         "no_passage": "આ તારીખે અમલમાં રહેલો કોઈ સત્તાવાર અંશ આ પ્રશ્ન સાથે મેળ ખાતો નથી.",
+        "not_covered": "આ સહાયકના સત્તાવાર દસ્તાવેજો આ પ્રશ્નનો જવાબ આપતા નથી. તે {n} "
+        "યોજનાઓને આવરી લે છે; યોજનાઓ પેજ જુઓ.",
         "invalid_marker": "જવાબ એવા અંશ નંબરનો ઉલ્લેખ કરે છે જે આપવામાં આવ્યો ન હતો.",
         "uncited": "જવાબમાં કોઈ સ્રોતનો ઉલ્લેખ નથી; સાવધાનીથી જુઓ.",
         "unverified": "કેટલાક આંકડા ઉલ્લેખિત સ્રોતોમાં મળ્યા નથી: {values}",
@@ -275,7 +287,13 @@ class DemoService:
             cached = response.cached
         latency_ms = round((time.monotonic() - started) * 1000)
 
-        says_no = any(h in answer.lower() for h in NO_ANSWER_HINTS)
+        # The prompt asks the model to mark a decline with a fixed token, which is more reliable
+        # than matching wording in three languages; the phrase list is a fallback.
+        says_no = answer.lstrip().upper().startswith(NO_ANSWER_TOKEN) or any(
+            h in answer.lower() for h in NO_ANSWER_HINTS
+        )
+        if answer.lstrip().upper().startswith(NO_ANSWER_TOKEN):
+            answer = answer.lstrip()[len(NO_ANSWER_TOKEN) :].lstrip(" :").strip()
         report = validate(answer, [c.text for c in shown], says_no_answer=says_no)
         if report.invalid_markers:
             warnings.append(m["invalid_marker"])
@@ -286,6 +304,12 @@ class DemoService:
             warnings.append(m["unverified"].format(values=", ".join(unverified)))
 
         cited = report.cited or []
+        # A declined answer has no rule version, sources or change flags to show: listing the
+        # scheme the router fell back to would suggest the answer came from it.
+        declined = says_no and not cited
+        if declined:
+            warnings = [m["not_covered"].format(n=len(self.registry))]
+            shown, others = [], []
         citations = [self._citation(i, shown[i - 1], day) for i in range(1, len(shown) + 1)]
         used = [shown[i - 1] for i in cited] or shown[:1]
         rule_versions: list[dict[str, Any]] = []
@@ -301,6 +325,7 @@ class DemoService:
                 rule_versions.append(entry)
         return {
             "answer": answer,
+            "declined": declined,
             "language": language,
             "as_of": day.isoformat(),
             "search_query": query,

@@ -310,6 +310,7 @@ export function AskClient() {
                   </div>
                 </Card>
 
+                {result.citations.length > 0 ? (
                 <section aria-labelledby="sources-heading" className="space-y-3">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 id="sources-heading" className="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -321,6 +322,7 @@ export function AskClient() {
                     <SourceCard key={c.id} c={c} active={active?.id === c.id} flashKey={active?.n ?? 0} ctx={ctx} />
                   ))}
                 </section>
+                ) : null}
               </div>
 
               <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
