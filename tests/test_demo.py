@@ -145,3 +145,8 @@ def test_routing_by_scheme_name_in_any_language() -> None:
     assert named_schemes("PM Swarnidhi first loan")[0] == "pm-svanidhi"
     assert named_schemes("मुद्रा योजना में अधिकतम ऋण")[0] == "pm-mudra"
     assert named_schemes("what is the weather") == []
+
+
+def test_non_breaking_hyphen_years_are_dates() -> None:
+    report = validate("₹1.25 lakh in FY 2024\u201125 [1]", ["The limit is Rs 1.25 lakh."])
+    assert [n.value for n in report.numbers] == ["125,000"]

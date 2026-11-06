@@ -66,8 +66,8 @@ def cited_ids(answer: str) -> list[int]:
 
 _DATES = re.compile(
     r"\b\d{1,2}\s+[^\W\d_]+\.?,?\s+(?:19|20)\d{2}\b"  # 24 October 2024, 24 अक्टूबर 2024
-    r"|\b(?:19|20)\d{2}-\d{2}-\d{2}\b"  # 2024-10-24
-    r"|\b(?:19|20)\d{2}\s*[-–/]\s*\d{2,4}\b"  # noqa: RUF001  (2024-25, 2025/26, en dash)
+    r"|\b(?:19|20)\d{2}[-‑]\d{2}[-‑]\d{2}\b"  # noqa: RUF001  (2024-10-24, also with non-breaking hyphens)
+    r"|\b(?:19|20)\d{2}\s*[-‐‑‒–/]\s*\d{2,4}\b"  # noqa: RUF001  (2024-25, 2025/26, en dash)
     r"|\b(?:19|20)\d{2}\b"  # a bare year
 )
 

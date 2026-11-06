@@ -25,6 +25,7 @@ from typing import Any, Literal
 from policydrift.agents.mitigations import system_for
 from policydrift.citations import normalise_markers, validate
 from policydrift.db import read_env_file
+from policydrift.demo.lexical import LexicalRetriever
 from policydrift.demo.routing import pick_scheme
 from policydrift.experiments.prompts import LANGUAGE_NAMES, format_passages
 from policydrift.ingest.build import Chunk
@@ -104,6 +105,10 @@ class DemoSettings:
     k_conflicts: int = 12  # search depth for scheme routing and rule-change flags
     doc_language: str = "en"  # passages in English for every question language, as in the study
     max_tokens: int = 2048
+    # "dense" (e5-base, as in the research) or "lexical" (BM25, for free hosting tiers that
+    # cannot hold the embedding model in memory).
+    retriever: str = "dense"
+    cache_dir: Path | None = None  # default: <root>/.cache/demo
 
 
 def _iso(d: date | None) -> str | None:
@@ -127,7 +132,7 @@ class DemoService:
         self.settings = settings or DemoSettings()
         self.registry: Registry = load_registry(root / "data" / "schemes.yaml")
         self.chunks = load_chunks(root / "data" / "processed" / "chunks.jsonl")
-        self._retriever: Retriever | None = None
+        self._retriever: Retriever | LexicalRetriever | None = None
         self._client: LLMClient | None = None
         models = load_models(root / "configs" / "models.yaml")["models"]
         assert isinstance(models, dict)
@@ -137,10 +142,16 @@ class DemoService:
 
     # -- lazy resources ---------------------------------------------------------------------
     @property
-    def retriever(self) -> Retriever:
+    def cache_dir(self) -> Path:
+        return self.settings.cache_dir or self.root / ".cache" / "demo"
+
+    @property
+    def retriever(self) -> Retriever | LexicalRetriever:
+        if self._retriever is None and self.settings.retriever == "lexical":
+            self._retriever = LexicalRetriever(self.chunks)
         if self._retriever is None:
             model = MODELS[DEFAULT_MODEL]
-            demo_dir = self.root / ".cache" / "demo" / "embeddings"
+            demo_dir = self.cache_dir / "embeddings"
             research = self.root / ".cache" / "embeddings" / f"{model.key}.npz"
             target = demo_dir / f"{model.key}.npz"
             if not target.exists() and research.exists():  # start from the research vectors
@@ -162,7 +173,8 @@ class DemoService:
             assert isinstance(rpm, dict)
             env = read_env_file(self.root / ".env")
             keys = {p: os.environ.get(v) or env.get(v, "") for p, v in KEY_VARS.items()}
-            cache = ResponseCache(self.root / ".cache" / "demo" / "llm.sqlite")
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+            cache = ResponseCache(self.cache_dir / "llm.sqlite")
             self._client = LLMClient(cache, keys, {str(k): int(v) for k, v in rpm.items()})
         return self._client
 

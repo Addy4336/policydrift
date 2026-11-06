@@ -53,8 +53,13 @@ app.add_middleware(
 
 @lru_cache(maxsize=1)
 def service() -> DemoService:
-    model = os.environ.get("POLICYDRIFT_DEMO_MODEL", DemoSettings.model_key)
-    return DemoService(ROOT, DemoSettings(model_key=model))
+    cache = os.environ.get("POLICYDRIFT_CACHE_DIR")
+    settings = DemoSettings(
+        model_key=os.environ.get("POLICYDRIFT_DEMO_MODEL", DemoSettings.model_key),
+        retriever=os.environ.get("POLICYDRIFT_RETRIEVER", DemoSettings.retriever),
+        cache_dir=Path(cache) if cache else None,
+    )
+    return DemoService(ROOT, settings)
 
 
 class AskRequest(BaseModel):
