@@ -1,0 +1,12 @@
+.git
+.venv
+.cache
+runs
+web
+data/raw
+data/benchmark/test
+data/benchmark/drafts
+data/benchmark/verification
+data/benchmark/judge_validation
+.env
+**/__pycache__
