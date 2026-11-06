@@ -6,7 +6,7 @@ Government rules change: loan limits, subsidy caps, tax rates, eligibility thres
 
 Paper in progress: *Stale by Default: Measuring and Mitigating Outdated-Rule Answers in Multilingual Policy RAG Agents*.
 
-**Live demo:** https://policydrift-lime.vercel.app (API: https://policydrift-api.vercel.app/api/health). The hosted demo uses BM25 retrieval because free serverless hosting cannot load the embedding model; see [docs/deploy.md](docs/deploy.md).
+**Live demo:** https://policydrift-lime.vercel.app · **Code:** https://github.com/Addy4336/policydrift (API: https://policydrift-api.vercel.app/api/health). The hosted demo uses BM25 retrieval because free serverless hosting cannot load the embedding model; see [docs/deploy.md](docs/deploy.md).
 
 ![PolicyDrift answering a PM SVANidhi question: the rule-change banner, the answer with a citation, the rule version used and the citation checks](docs/img/demo-answer.jpg)
 

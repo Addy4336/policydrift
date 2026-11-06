@@ -8,8 +8,8 @@ Everything here is checked against the repository as of 2026-11-06. Dev-split nu
 |---|---|
 | Live demo | https://policydrift-lime.vercel.app |
 | API health | https://policydrift-api.vercel.app/api/health |
-| Source code | not public yet. Push the repo to GitHub, then add the link here |
-| Screenshot | `docs/img/demo-answer.jpg` (1280×900 crop of the answer view) |
+| Source code | https://github.com/Addy4336/policydrift |
+| Screenshot | `docs/img/demo-answer.jpg`, also at https://raw.githubusercontent.com/Addy4336/policydrift/main/docs/img/demo-answer.jpg |
 
 ## One line
 
